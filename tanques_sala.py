@@ -109,11 +109,62 @@ class Draw_bullet():
             self.image = pygame.image.load(r"nada.png")
             screen.blip(self.image, bullet.pos)
 
-class Tank():
-    def __init__(self, pos):
-        self.pos = pos
+# class Tank():
+#     def __init__(self, pos):
+#         self.pos = pos
+#         self.width = PlayerSize
+#         self.height = PlayerSize
+    
+#     def moveUp(self):
+#         self.pos[1]-=3
+#         self.dir = 1
+#         if self.pos[1] < 0:
+#             self.pos[1]=0
+        
+
+#     def moveDown(self):
+#         self.dir = 3
+#         self.pos[1]+=3
+#         if self.pos[1] > SIZE[1]:
+#             self.pos[1] = SIZE[1]
+    
+#     def moveLeft(self):
+#         self.dir = 0
+#         self.pos[0] -= 3
+#         if self.pos[0]<0:
+#             self.pos[0]=0
+
+#     def moveRight(self):
+#         self.dir = 2
+#         self.pos[0] += 3 
+#         if self.pos[0]>SIZE[0]:
+#             self.pos[0] = SIZE[0]
+        
+
+class Player():
+    def __init__(self, num_P):
+        
+        self.numP = num_P
         self.width = PlayerSize
         self.height = PlayerSize
+        if num_P == 0:
+            self.pos = [30, 200]
+        else:
+            self.pos = [350,200]
+        self.powerups = {
+            "shield" : 0,
+            "speed" : 0,
+            "supershot" : 0
+        }
+        self.lives = 5
+        self.direction  = None 
+
+    
+    def get_pos(self):
+        return self.pos
+    
+    def set_pos(self, num_P, pos):
+        self.pos = pos
     
     def moveUp(self):
         self.pos[1]-=3
@@ -139,31 +190,7 @@ class Tank():
         self.pos[0] += 3 
         if self.pos[0]>SIZE[0]:
             self.pos[0] = SIZE[0]
-        
 
-class Player(Tank):
-    def __init__(self, num_P):
-        self.tank = Tank()
-        self.numP = num_P
-        self.width = PlayerSize
-        self.height = PlayerSize
-        self.pos = [None, None]
-        self.powerups = {
-            "shield" : 0,
-            "speed" : 0,
-            "supershot" : 0
-        }
-        self.lives = 5
-        self.image = pygame.sprites
-        self.direction  = None 
-
-    
-    def get_pos(self):
-        return self.pos
-    
-    def set_pos(self, num_P, pos):
-        self.pos = pos
-    
     def __str__(self):
         return f"Tank"
 
@@ -340,16 +367,20 @@ def player(nplayer, conn, game):
         traceback.print_exc()
         conn.close()
     finally:
+        game.running.value = 0
         print(f"Game ended {game}")
 
 def pUpManager(game):
-    while game.is_running():
-        time.sleep(5)
-        game.createPWUP(random.randint(1,3))
-        time.sleep(10)
-        if game.pwUP != []:
-            game.delPWUP
-        
+    try:
+        while game.is_running():
+            time.sleep(5)
+            game.createPWUP(random.randint(1,3))
+            time.sleep(10)
+            if game.pwUP != []:
+                game.delPWUP
+    finally:
+        pass
+            
 def main(ip_address):
     manager = Manager()
     try:
@@ -366,7 +397,7 @@ def main(ip_address):
                 n_player += 1
                 if n_player == 2:
                     powerUpManager = Process(target = pUpManager,
-                                             args=(game))
+                                             args = (game,))
                     players[0].start()
                     players[1].start()
                     

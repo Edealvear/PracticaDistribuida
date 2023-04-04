@@ -102,7 +102,7 @@ class Draw_bullet(pygame.sprite.Sprite):
 class Player():
     def __init__(self, num_P, pos =[None, None]):
         self.numP = num_P
-        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}.png")
+        self.image = pygame.image.load(rf"TanqueP{self.numP + 1}.png")
         self.pos = pos
         self.powerups = {
             "shield" : 0,
@@ -110,7 +110,6 @@ class Player():
             "supershot" : 0
         }
         self.lives = 5
-        self.image = pygame.sprites
         self.direction  = None 
 
     
@@ -141,7 +140,7 @@ class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
         self.bullets = []
-        self.powerUps
+        self.powerUps = []
         self.score = [0,0]
         self.running = True
     
