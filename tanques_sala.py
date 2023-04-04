@@ -4,7 +4,9 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 
-SIZE = (700, 525)
+SIZE = (830, 884)
+
+MinMapa = 87
 
 BullSize = 10
 
@@ -148,26 +150,28 @@ class Player():
         self.width = PlayerSize
         self.height = PlayerSize
         if num_P == 0:
-            self.pos = [30, 200]
+            self.pos = [30, 495]
+            self.direction = 2
         else:
-            self.pos = [350,200]
+            self.pos = [350,495]
+            self.direction  = 2
         self.powerups = {
             "shield" : 0,
             "speed" : 0,
             "supershot" : 0
         }
         self.lives = 5
-        self.direction  = None 
+          
 
     
     def get_pos(self):
         return self.pos
     
-    def set_pos(self, num_P, pos):
+    def set_pos(self, pos):
         self.pos = pos
     
     def moveUp(self):
-        self.pos[1]-=3
+        self.pos[1]-= (3+self.powerups["speed"])
         self.dir = 1
         if self.pos[1] < 0:
             self.pos[1]=0
@@ -175,37 +179,44 @@ class Player():
 
     def moveDown(self):
         self.dir = 3
-        self.pos[1]+=3
+        self.pos[1]+= (3+self.powerups["speed"])
         if self.pos[1] > SIZE[1]:
             self.pos[1] = SIZE[1]
     
     def moveLeft(self):
         self.dir = 0
-        self.pos[0] -= 3
+        self.pos[0] -= (3+self.powerups["speed"])
         if self.pos[0]<0:
             self.pos[0]=0
 
     def moveRight(self):
         self.dir = 2
-        self.pos[0] += 3 
+        self.pos[0] += (3+self.powerups["speed"]) 
         if self.pos[0]>SIZE[0]:
             self.pos[0] = SIZE[0]
 
     def __str__(self):
         return f"Tank"
 
-"""
-Te falta practicamente todo, sobre todo la parte de hacerlo 
-de forma dsitribuida
-
-mirar apuntes profe para ello
-
-"""
+    def hit(self, bullet):
+        if self.powerups["shield"] > 0:
+            self.powerups["shield"] -= 1
+        else:
+            self.lives -= bullet.damage
+    
+    def add_Powerup(self, powerUp):
+        if powerUp.type == 0:
+            self.powerups["shield"] += 1
+        elif powerUp.type == 1:
+            self.powerups["speed"] += 1
+        else:
+            self.powerups["damage"] += 1
 
 class Game():
     def __init__(self, manager):
         self.players = manager.list( [Player(0), Player(1)] )
         self.bullets = manager.dict({})
+        self.walls = manager.list([])
         self.new_bullets = manager.list([])
         self.powerUps = manager.list([])
         self.new_powerUps = manager.list([])
@@ -213,6 +224,12 @@ class Game():
         self.score = manager.list( [5,5] )
         self.running = Value('i', 1) # 1 running
         self.lock = Lock()
+        self.winner = Value('i',0) 
+
+    def inic_walls(self):
+        for i in range(16):
+            if i==1:
+                self.walls(Wall())
 
     def get_player(self, side):
         return self.players[side]
@@ -275,8 +292,9 @@ class Game():
             'is_running': self.running.value == 1,
             'bullets': self.bullets,
             'new_bullets': self.new_bullets,
-            'new_powerUps': self.new_powerUps ,
-            'delete': self.elim
+            'new_powerUps': self.new_powerUps,
+            'delete': self.elim,
+            'WINNER': self.winner.value
         }
         return info
 
@@ -299,19 +317,25 @@ class Game():
         del self.bullets[bull.id]
     
     def HitPlayer(self):
+        self.lock.acquire()
         for bull in self.bullets.values:
-            for players in self.players:
+            for player in self.players:
                 if collide(bull, player):
                     player.hit(bull)
                     self.elimbull(bull)
+                    self.score[player.numP] = player.lives
+        self.lock.release()
 
     def collide_BW(self):
+        self.lock.acquire()
         for bull in self.bullets.values:
             for wall in self.walls:
                 if collide(bull, wall):
                     self.elimbull(bull)
+        self.lock.release()
 
     def shoot(self, numP):
+        self.lock.acquire()
         owner = numP
         pos = self.players[numP].pos
         dir = self.players[numP].dir
@@ -320,15 +344,28 @@ class Game():
         bullet = Bullet(owner, pos, dir, id, damage)
         self.bullets[id] = bullet
         self.new_bullets.append([id, owner, pos, dir])
+        self.lock.release()
 
     def createPWUP(self, PWUP):
+        self.lock.acquire()
         id = random.randint(1000)
         self.powerUps.append(Power_UP(id, PWUP))
         self.new_powerUps.append(id)
+        self.lock.release()
+
+    def getPWUP(self):
+        self.lock.acquire()
+        for player in self.players:
+            if collide(player, self.powerUps[0]):
+                player.add_Powerup(self.powerUps[0])
+                self.delPWUP()
+        self.lock.release()
 
     def delPWUP(self):
+        self.lock.acquire()
         self.elim.append(("powerUp", self.powerUps[0].id))
         self.powerUps.pop()
+        self.lock.release()
 
     def __str__(self):
         return f"G{self.running.value}>"
@@ -358,10 +395,18 @@ def player(nplayer, conn, game):
                     game.HitPlayer()
                 elif command == "Col_PW":
                     pass #Puede que necesitemos hacer la funcion para la colision
+                elif command == "getPWUP":
+                    game.getPWUP()
                 elif command == "quit":
                     game.stop()
             if nplayer == 1:
                 game.move_bullet()
+                if game.score[0] == 0:
+                    game.running.value = 0
+                    game.winner.value = 1
+                elif game.score[1] == 0:
+                    game.running.value = 0
+                    game.winner.value = 0
             conn.send(game.get_info())
     except:
         traceback.print_exc()
@@ -389,6 +434,7 @@ def main(ip_address):
             n_player = 0
             players = [None, None]
             game = Game(manager)
+            game.inic_walls()
             while True:
                 print(f"accepting connection {n_player}")
                 conn = listener.accept()

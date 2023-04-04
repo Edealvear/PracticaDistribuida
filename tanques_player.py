@@ -282,8 +282,8 @@ def main(ip_address):
                         game.stop()
                 conn.send("next")
                 gameinfo = conn.recv()
-                if gameinfo["END"] == True:
-                    Win = gameinfo["Winner"]
+                if gameinfo["is_running"] == False:
+                    Win = gameinfo["Winner"] 
                     font = pygame.font.Font(None, 90)
                     text = font.render(f"Winner player N {Win}")
                     display.screen.blit(display.background, (0,0))
