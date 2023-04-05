@@ -434,7 +434,7 @@ def main(ip_address):
             n_player = 0
             players = [None, None]
             game = Game(manager)
-            game.inic_walls()
+            #game.inic_walls()
             while True:
                 print(f"accepting connection {n_player}")
                 conn = listener.accept()
