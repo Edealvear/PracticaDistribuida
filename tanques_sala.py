@@ -18,8 +18,14 @@ PLAYER = [0,1]
 
 def collide(a,b):
     col = False
-    if abs(a.pos[0] - b.pos[0]) < a.width + b.witdth and abs(a.pos[1] - b.pos[1]) < a.height + b.height:
-        col= True
+    if a.pos[0] >= b.pos[0] and a.pos[1] >= b.pos[1]: 
+        col = (a.pos[0]-b.pos[0] < a.width) and (a.pos[1]- b.pos[1] < a.height)
+    elif a.pos[0] >= b.pos[0] and a.pos[1] < b.pos[1]:
+        col = (a.pos[0]-b.pos[0] < a.width) and (b.pos[1]- a.pos[1] < b.height)
+    elif a.pos[1] >= b.pos[1]:
+        col = (b.pos[0]-a.pos[0] < b.width) and (a.pos[1]- b.pos[1] < a.height)
+    else:
+        col = (b.pos[0]-a.pos[0] < b.width) and (b.pos[1]- a.pos[1] < b.height)
     return col
 
 
@@ -51,7 +57,7 @@ class Power_UP():
         self.height = PowerUpSize
         self.image = pygame.image.load(fr"bonus{type}.png")
         self.active=True
-        self.pos = []#Falta rellenar posicion
+        self.pos = [383, 473]#Falta rellenar posicion
     
     def catched(self, player): 
         player.powerups[self.type] += 1
@@ -227,9 +233,31 @@ class Game():
         self.winner = Value('i',0) 
 
     def inic_walls(self):
-        for i in range(16):
-            if i==1:
-                self.walls(Wall())
+        for i in range(12):
+            if i==0:
+                self.walls.append(Wall(60, 155, 63, 273))
+            elif i==1:
+                self.walls.append(Wall(186, 155, 63, 273))
+            elif i == 2:
+                self.walls.append(Wall(315, 155, 63, 213))
+            elif i == 3:
+                self.walls.append(Wall(439, 155, 63, 213))
+            elif i == 4:
+                self.walls.append(Wall(565, 155, 63, 273))
+            elif i == 5:
+                self.walls.append(Wall(690, 155, 63, 273))
+            elif i == 6:
+                self.walls.append(Wall(60, 554, 63, 273))
+            elif i == 7:
+                self.walls.append(Wall(186, 554, 63, 273))
+            elif i == 8:
+                self.walls.append(Wall(315, 610, 63, 213))
+            elif i == 9:
+                self.walls.append(Wall(439, 610, 63, 213))
+            elif i == 10:
+                self.walls.append(Wall(565, 554, 63, 273))
+            else:
+                self.walls.append(Wall(690, 554, 63, 273))
 
     def get_player(self, side):
         return self.players[side]
@@ -434,7 +462,7 @@ def main(ip_address):
             n_player = 0
             players = [None, None]
             game = Game(manager)
-            #game.inic_walls()
+            game.inic_walls()
             while True:
                 print(f"accepting connection {n_player}")
                 conn = listener.accept()

@@ -11,7 +11,7 @@ PowerUpSize = 30
 POSPWUPX = 150
 POSPWUPY = 200
 PlayerSize = 30
-PLAYER = [0,1]
+PLAYER = [1,2]
 
 class Wall(pygame.sprite.Sprite):
     """
@@ -217,7 +217,7 @@ class Display():
                     events.append("Col_BW")
             for player in self.tanks_sprites:
                 if player.numP != bullet.owner and pygame.sprite.collide_rect(player, bullet):
-                    events.append(f"Player_hit")
+                    events.append("Player_hit")
         for player in self.tanks_sprites:
             if pygame.sprite.collide_rect(player, self.powerups_sprites[0]):
                 events.append("getPWUP")
@@ -231,9 +231,9 @@ class Display():
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
         score = self.game.get_score()
-        font = pygame.font.Font(None, 74)
-        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}")
-        self.screen.blit(text, (SIZE[0]-250, 10))
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", color = (255,255,255))
+        self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
             
@@ -285,7 +285,7 @@ def main(ip_address):
                 if gameinfo["is_running"] == False:
                     Win = gameinfo["Winner"] 
                     font = pygame.font.Font(None, 90)
-                    text = font.render(f"Winner player N {Win}")
+                    text = font.render(f"Winner player N {Win + 1}")
                     display.screen.blit(display.background, (0,0))
                     display.screen.blit(text, (SIZE[0]-250, 10))
                     time.sleep(10)
