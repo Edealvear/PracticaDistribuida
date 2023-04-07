@@ -93,13 +93,13 @@ class Bullet():
 
     def update(self, players):
         if self.dir == 0:
-            self.pos[0]+=self.speed
+            self.pos[0] += self.speed
         elif self.dir == 1:
             self.pos[1] += self.speed
         elif self.dir == 2:
-            self.pos[0]-= self.speed
+            self.pos[0] -= self.speed
         else:
-            self.pos[1]-= self.speed	
+            self.pos[1] -= self.speed	
         
         
 class Draw_bullet():
@@ -177,7 +177,7 @@ class Player():
         self.pos = pos
     
     def moveUp(self):
-        self.pos[1]-= (3+self.powerups["speed"])
+        self.pos[1]-= (3 + self.powerups["speed"])
         self.dir = 1
         if self.pos[1] < 0:
             self.pos[1]=0
@@ -185,19 +185,19 @@ class Player():
 
     def moveDown(self):
         self.dir = 3
-        self.pos[1]+= (3+self.powerups["speed"])
+        self.pos[1]+= (3 + self.powerups["speed"])
         if self.pos[1] > SIZE[1]:
             self.pos[1] = SIZE[1]
     
     def moveLeft(self):
         self.dir = 0
-        self.pos[0] -= (3+self.powerups["speed"])
+        self.pos[0] -= (3 + self.powerups["speed"])
         if self.pos[0]<0:
             self.pos[0]=0
 
     def moveRight(self):
         self.dir = 2
-        self.pos[0] += (3+self.powerups["speed"]) 
+        self.pos[0] += (3 + self.powerups["speed"]) 
         if self.pos[0]>SIZE[0]:
             self.pos[0] = SIZE[0]
 
@@ -234,9 +234,9 @@ class Game():
 
     def inic_walls(self):
         for i in range(12):
-            if i==0:
+            if i == 0:
                 self.walls.append(Wall(60, 155, 63, 273))
-            elif i==1:
+            elif i == 1:
                 self.walls.append(Wall(186, 155, 63, 273))
             elif i == 2:
                 self.walls.append(Wall(315, 155, 63, 213))
@@ -422,7 +422,7 @@ def player(nplayer, conn, game):
                 elif command == "Player_hit":
                     game.HitPlayer()
                 elif command == "Col_PW":
-                    pass #Puede que necesitemos hacer la funcion para la colision
+                    pass #Puede que necesitemos hacer la funcion para la colision, no debería porque lo arreglo en el move del tanque 
                 elif command == "getPWUP":
                     game.getPWUP()
                 elif command == "quit":
