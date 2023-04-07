@@ -4,13 +4,13 @@ import traceback
 import pygame
 import sys, os
 
-SIZE = (700, 525)
+SIZE = (830, 884)
 FPS = 60
 BullSize = 10
-PowerUpSize = 30
+PowerUpSize = 50
 POSPWUPX = 150
 POSPWUPY = 200
-PlayerSize = 30
+PlayerSize = 50
 PLAYER = [1,2]
 
 class Wall(pygame.sprite.Sprite):

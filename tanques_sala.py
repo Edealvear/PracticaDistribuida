@@ -10,9 +10,9 @@ MinMapa = 87
 
 BullSize = 10
 
-PowerUpSize = 30
+PowerUpSize = 50
 
-PlayerSize = 30 
+PlayerSize = 50
 
 PLAYER = [0,1]
 
