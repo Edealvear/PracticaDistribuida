@@ -8,7 +8,7 @@ SIZE = (830, 884)
 
 MinMapa = 87
 
-BullSize = 10
+BullSize = 16
 
 PowerUpSize = 50
 
@@ -34,21 +34,20 @@ class Wall(pygame.sprite.Sprite):
     """
     Walls can't be passed by player.
     """
-    def __init__(self, x, y, width, height, color, screen):
+    def __init__(self, x, y, width, height):
         # Init.
         pygame.sprite.Sprite.__init__(self)
-        self.pos [x,y]
+        self.pos = [x,y]
         self.height = height
         self.width = width
-        self.color = color
-        self.screen = screen
+        #self.screen = screen
         # Create
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-        self.rect = self.image.get_rect()
+        #self.image = pygame.Surface([width, height])
+        #self.image.fill(color)
+        #self.rect = self.image.get_rect()
 
-    def draw(self):
-        pygame.draw.rect(self.screen, self.color, [self.pos[0], self.pos[1], self.width, self.height], 0)
+    #def draw(self):
+    #    pygame.draw.rect(self.screen, self.color, [self.pos[0], self.pos[1], self.width, self.height], 0)
 
 class Power_UP():
     def __init__(self, type):
@@ -91,7 +90,7 @@ class Bullet():
         self.dir = direction#0 : izq; 1:arriba; 2:Der ; 3: abajo
         self.active = True
 
-    def update(self, players):
+    def update(self):
         if self.dir == 0:
             self.pos[0] += self.speed
         elif self.dir == 1:
@@ -113,9 +112,7 @@ class Draw_bullet():
         screen.blip(self.image, bullet.pos)
     
     def update(self, bullet):
-        if not bullet.active:
-            self.image = pygame.image.load(r"nada.png")
-            screen.blip(self.image, bullet.pos)
+        pass
 
 # class Tank():
 #     def __init__(self, pos):
@@ -316,19 +313,24 @@ class Game():
         info = {
             'pos_J1': self.players[0].get_pos(),
             'pos_J2': self.players[1].get_pos(),
+            'dir': [self.players[0].direction, self.players[1].direction],
             'score': list(self.score),
             'is_running': self.running.value == 1,
-            'bullets': self.bullets,
-            'new_bullets': self.new_bullets,
-            'new_powerUps': self.new_powerUps,
-            'delete': self.elim,
             'WINNER': self.winner.value
         }
+        if len(self.bullets.keys()) > 0:
+            info['bullets'] = self.bullets
+        if len(self.new_bullets) > 0:
+            info['new_bullets'] = self.new_bullets
+        if len(self.new_powerUps) > 0:
+            info['new_powerUps'] = self.new_powerUps
+        if len(self.elim) > 0:
+            info['delete'] = self.elim
         return info
 
     def move_bullet(self):
         self.lock.acquire()
-        for bull in self.bullets:
+        for bull in self.bullets.values():
             bull.update()
             if bull.pos[0] < 0:
                 self.elimbull(bull)
@@ -366,9 +368,9 @@ class Game():
         self.lock.acquire()
         owner = numP
         pos = self.players[numP].pos
-        dir = self.players[numP].dir
-        damage = self.player[numP].powerups["supershot"] + 1
-        id = str(random.randint(1000))
+        dir = self.players[numP].direction
+        damage = self.players[numP].powerups["supershot"] + 1
+        id = str(random.randint(0,1000))
         bullet = Bullet(owner, pos, dir, id, damage)
         self.bullets[id] = bullet
         self.new_bullets.append([id, owner, pos, dir])
@@ -376,7 +378,7 @@ class Game():
 
     def createPWUP(self, PWUP):
         self.lock.acquire()
-        id = random.randint(1000)
+        id = random.randint(0,1000)
         self.powerUps.append(Power_UP(id, PWUP))
         self.new_powerUps.append(id)
         self.lock.release()
@@ -403,10 +405,12 @@ def player(nplayer, conn, game):
     try:
         print(f"starting player {PLAYER[nplayer]}:{game.get_info()}")
         conn.send( (nplayer, game.get_info()) )
+        print("AAAAAAAAAAAAAAAAAAAAAAAAA")
         while game.is_running():
             command = ""
             while command != "next":
                 command = conn.recv()
+                print(command)
                 if command == "Up":
                     game.moveUp(nplayer)
                 elif command == "Down":
@@ -417,11 +421,11 @@ def player(nplayer, conn, game):
                     game.moveRight(nplayer)
                 elif command == "Space":
                     game.shoot(nplayer)
-                elif command == "Col_BW":
+                elif command == "ColBW":
                     game.collide_BW()
-                elif command == "Player_hit":
+                elif command == "Playerhit":
                     game.HitPlayer()
-                elif command == "Col_PW":
+                elif command == "ColPW":
                     pass #Puede que necesitemos hacer la funcion para la colision, no debería porque lo arreglo en el move del tanque 
                 elif command == "getPWUP":
                     game.getPWUP()
@@ -457,8 +461,7 @@ def pUpManager(game):
 def main(ip_address):
     manager = Manager()
     try:
-        with Listener((ip_address, 6000),
-                      authkey=b'secret password') as listener:
+        with Listener((ip_address, 6000), authkey = b"password") as listener:
             n_player = 0
             players = [None, None]
             game = Game(manager)
@@ -478,6 +481,7 @@ def main(ip_address):
                     n_player = 0
                     players = [None, None]
                     game = Game(manager)
+                    game.inic_walls()
 
     except Exception as e:
         traceback.print_exc()

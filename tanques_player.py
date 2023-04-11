@@ -5,8 +5,9 @@ import pygame
 import sys, os
 
 SIZE = (830, 884)
+WHITE = (255,255,255)
 FPS = 60
-BullSize = 10
+BullSize = 16
 PowerUpSize = 50
 POSPWUPX = 150
 POSPWUPY = 200
@@ -20,7 +21,7 @@ class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color, screen):
         # Init.
         pygame.sprite.Sprite.__init__(self)
-        self.pos [x,y]
+        self.pos = [x,y]
         self.height = height
         self.width = width
         self.color = color
@@ -55,9 +56,10 @@ class PowerUpImage(pygame.sprite.Sprite):
         self.screen = screen
         super().__init__()
         self.pwup = powerup
-        self.rect = pygame.Surface( (PowerUpSize, PowerUpSize))
-        self.rect.centerx, self.rect.centery = POSPWUPX, POSPWUPY
-        pygame.transform.scale(powerup.image, self.rect.get_size, dest_surface=self.rect)
+        self.image = powerup.image
+        pygame.draw.rect(self.image, [0,0,0,0], [0,0,PowerUpSize, PowerUpSize])
+        self.rect = self.image.get_rect()
+        self.update()
         #self.rect.blip(self.image, powerup.pos)
     
     def update(self) -> None:
@@ -87,12 +89,13 @@ class Draw_bullet(pygame.sprite.Sprite):
         self.screen = screen
         super().__init__()
         self.bullet = bullet
-        self.rect = pygame.Surface((BullSize, BullSize), pygame.SRCALPHA)
-        self.rect.centerx, self.rect.centery = self.bullet.pos
-        self.image_load = pygame.transform.scale(pygame.image.load(r"bullet.png"), self.rect.get_size(), dest_surface = self.rect)
+        self.image = pygame.image.load(r"bullet.png")
+        pygame.draw.rect(self.image, [0,0,0,0], [0,0,BullSize, BullSize])
+        self.rect = self.image.get_rect()
+        self.update()
         #self.rect.blit(self.image_load, (0,0))
-        # self.screen.blit(self.rect, self.rect_pos)
-        pygame.draw.rect(self.rect)
+        #self.screen.blit(self.rect, self.rect_pos)
+
 
     def update(self) -> None:
         pos = self.bullet.get_pos
@@ -125,16 +128,19 @@ class Player():
 
 class Player_display(pygame.sprite.Sprite):
     def __init__(self, player, screen):
+        super().__init__()
         self.screen = screen
         self.player = player 
-        self.rect = pygame.Surface((PlayerSize, PlayerSize))
         self.image = self.player.image
-        self.rect.centerx, self.rect.centery = self.player.pos
-        pygame.transform.scale(self.image, self.rect.get_size, self.rect)
+        pygame.draw.rect(self.image, [0,0,0,0], [0,0, PlayerSize, PlayerSize])
+        self.rect = self.image.get_rect()
+        self.update()
         #self.screen.blip(self.image, self.pos)
     
-    def update(self, player):
-        self.screen.blip(self.image, self.pos)
+    def update(self):
+        pos = self.player.get_pos()
+        self.rect.centerx, self.rect.centery = pos
+
 
 class Game():
     def __init__(self):
@@ -159,7 +165,6 @@ class Game():
     def update(self, game_info):
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
-
         self.directions = game_info["dir"]
         self.set_score(game_info["score"])
         self.running = game_info["is_running"]
@@ -174,25 +179,48 @@ class Display():
     def __init__(self, game):
         self.screen = pygame.display.set_mode(SIZE)
         self.game = game
-        self.tanks = [game.players.getplayer(i) for i in range(2)]
-        self.tanks_sprites = [Player_display(self.tanks[i]) for i in range(2)]
+        self.tanks = [game.getplayer(i) for i in range(2)]
+        self.tanks_sprites = [Player_display(self.tanks[i], self.screen) for i in range(2)]
         self.bullets = {}
         self.bullets_sprites = {}
         self.powerups = []
         self.powerups_sprites = []
-        self.walls = [Wall(), Wall()]#Falta añadir las paredes
+        self.walls = []#Falta añadir las paredes
         self.collision_group = pygame.sprite.Group()
         self.all_sprites=pygame.sprite.Group()
         for i in range(2):
             self.collision_group.add(self.tanks_sprites[i])
             self.all_sprites.add(self.tanks_sprites[i])
-        for wall in self.walls:
-            self.collision_group.add(wall)
-            self.all_sprites(wall)
-        self.background = pygame.image.load("mapa.png")
+        self.background = pygame.image.load("Mapa.png")
         self.clock = pygame.time.Clock()
         pygame.init()
-
+    
+    def inic_walls(self):
+        for i in range(12):
+            if i == 0:
+                self.walls.append(Wall(60, 155, 63, 273, [0,0,0,0], self.screen))
+            elif i == 1:
+                self.walls.append(Wall(186, 155, 63, 273, [0,0,0,0], self.screen))
+            elif i == 2:
+                self.walls.append(Wall(315, 155, 63, 213, [0,0,0,0], self.screen))
+            elif i == 3:
+                self.walls.append(Wall(439, 155, 63, 213, [0,0,0,0], self.screen))
+            elif i == 4:
+                self.walls.append(Wall(565, 155, 63, 273, [0,0,0,0], self.screen))
+            elif i == 5:
+                self.walls.append(Wall(690, 155, 63, 273, [0,0,0,0], self.screen))
+            elif i == 6:
+                self.walls.append(Wall(60, 554, 63, 273, [0,0,0,0], self.screen))
+            elif i == 7:
+                self.walls.append(Wall(186, 554, 63, 273, [0,0,0,0], self.screen))
+            elif i == 8:
+                self.walls.append(Wall(315, 610, 63, 213, [0,0,0,0], self.screen))
+            elif i == 9:
+                self.walls.append(Wall(439, 610, 63, 213, [0,0,0,0], self.screen))
+            elif i == 10:
+                self.walls.append(Wall(565, 554, 63, 273, [0,0,0,0], self.screen))
+            else:
+                self.walls.append(Wall(690, 554, 63, 273, [0,0,0,0], self.screen))
     def analyze_events(self, NumP):
         events = []
         for event in pygame.event.get():
@@ -214,17 +242,18 @@ class Display():
         for bullet in self.bullets_sprites:
             for wall in self.walls:
                 if pygame.sprite.collide_rect(wall, bullet):
-                    events.append("Col_BW")
+                    events.append("ColBW")
             for player in self.tanks_sprites:
                 if player.numP != bullet.owner and pygame.sprite.collide_rect(player, bullet):
-                    events.append("Player_hit")
+                    events.append("Playerhit")
         for player in self.tanks_sprites:
-            if pygame.sprite.collide_rect(player, self.powerups_sprites[0]):
-                events.append("getPWUP")
+            if len(self.powerups_sprites) > 0:
+                if pygame.sprite.collide_rect(player, self.powerups_sprites[0]):
+                    events.append("getPWUP")
         for wall in self.walls:
             for player in self.tanks_sprites:
                 if pygame.sprite.collide_rect(player, wall):
-                    events.append("Col_PW")
+                    events.append("ColPW")
         return events
 
     def refresh(self):
@@ -232,20 +261,22 @@ class Display():
         self.screen.blit(self.background,(0,0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 60)
-        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", color = (255,255,255))
+        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
         self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
             
     def new_sprites(self, gameinfo):
-        for bullet in gameinfo["new_bullets"]:
-            self.bullets[bullet[0]] =Bullet(bullet[0], bullet[2], bullet[3], bullet[0])
-            self.bullets_sprites[bullet[0]] = Draw_bullet(self.bullets[-1], self.screen)
-            self.all_sprites.add(self.bullets_sprites[-1])
-        for powerUps in gameinfo["new_powerUps"]:
-            self.powerups.append(Power_UP(powerUps))
-            self.powerups_sprites.append(PowerUpImage(self.powerups[-1], self.screen))
-            self.all_sprites.add(self.powerups_sprites[-1])
+        if 'new_bullets' in gameinfo.keys():
+            for bullet in gameinfo["new_bullets"]:
+                self.bullets[bullet[0]] =Bullet(bullet[0], bullet[2], bullet[3], bullet[0])
+                self.bullets_sprites[bullet[0]] = Draw_bullet(self.bullets[-1], self.screen)
+                self.all_sprites.add(self.bullets_sprites[-1])
+        if 'new_powerUps' in gameinfo.keys():      
+            for powerUps in gameinfo["new_powerUps"]:
+                self.powerups.append(Power_UP(powerUps))
+                self.powerups_sprites.append(PowerUpImage(self.powerups[-1], self.screen))
+                self.all_sprites.add(self.powerups_sprites[-1])
 
     def delete_sprites(self, game_info):
         for (elem, elem_id) in game_info["delete"]:
@@ -268,13 +299,16 @@ class Display():
 
 def main(ip_address):
     try:
-        with Client((ip_address, 6000), authkey=b'secret password') as conn:
+        with Client((ip_address, 6000), authkey = b"password") as conn:
             game = Game()
             side,gameinfo = conn.recv()
+            print("AAAAAAAA")
             print(f"I am playing {PLAYER[side]}")
             game.update(gameinfo)
             display = Display(game)
+            display.inic_walls()
             while game.is_running():
+                print("OOOOOOOOOOOOOOOOOOOOOOO")
                 events = display.analyze_events(side)
                 for ev in events:
                     conn.send(ev)
@@ -283,9 +317,9 @@ def main(ip_address):
                 conn.send("next")
                 gameinfo = conn.recv()
                 if gameinfo["is_running"] == False:
-                    Win = gameinfo["Winner"] 
+                    Win = gameinfo["WINNER"] 
                     font = pygame.font.Font(None, 90)
-                    text = font.render(f"Winner player N {Win + 1}")
+                    text = font.render(f"Winner player N {Win + 1}", True ,WHITE)
                     display.screen.blit(display.background, (0,0))
                     display.screen.blit(text, (SIZE[0]-250, 10))
                     time.sleep(10)
@@ -293,7 +327,8 @@ def main(ip_address):
                 else:
                     game.update(gameinfo)
                     display.new_sprites(gameinfo)
-                    display.delete_sprites(gameinfo)
+                    if 'delete' in gameinfo.keys():
+                        display.delete_sprites(gameinfo)
                     display.refresh()
                     display.tick()
     except:
