@@ -43,7 +43,7 @@ class Power_UP():
         self.type = type
         self.image = pygame.image.load(fr"bonus{type}.png")
         self.active=True
-        self.pos = []#Falta rellenar posicion
+        self.pos = [150,200]#Falta rellenar posicion
     
     def get_id(self):
         return self.id
@@ -57,7 +57,8 @@ class PowerUpImage(pygame.sprite.Sprite):
         super().__init__()
         self.pwup = powerup
         self.image = powerup.image
-        pygame.draw.rect(self.image, [0,0,0,0], [0,0,PowerUpSize, PowerUpSize])
+        #pygame.draw.rect(self.image, [0,0,0,0], [0,0,PowerUpSize, PowerUpSize])
+        self.screen.blit(self.image, self.pwup.pos)
         self.rect = self.image.get_rect()
         self.update()
         #self.rect.blip(self.image, powerup.pos)
@@ -90,7 +91,7 @@ class Draw_bullet(pygame.sprite.Sprite):
         super().__init__()
         self.bullet = bullet
         self.image = pygame.image.load(r"bullet.png")
-        pygame.draw.rect(self.image, [0,0,0,0], [0,0,BullSize, BullSize])
+        self.screen.blit(self.image, self.bullet.pos)
         self.rect = self.image.get_rect()
         self.update()
         #self.rect.blit(self.image_load, (0,0))
@@ -100,12 +101,12 @@ class Draw_bullet(pygame.sprite.Sprite):
     def update(self) -> None:
         pos = self.bullet.get_pos
         self.rect.centerx, self.rect.centery = pos
+        self.screen.blit(self.image, pos)
   
 
 class Player():
     def __init__(self, num_P, pos =[None, None]):
         self.numP = num_P
-        self.image = pygame.image.load(rf"TanqueP{self.numP + 1}.png")
         self.pos = pos
         self.powerups = {
             "shield" : 0,
@@ -131,15 +132,16 @@ class Player_display(pygame.sprite.Sprite):
         super().__init__()
         self.screen = screen
         self.player = player 
-        self.image = self.player.image
-        pygame.draw.rect(self.image, [0,0,0,0], [0,0, PlayerSize, PlayerSize])
+        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}.png")
         self.rect = self.image.get_rect()
+        self.screen.blit(self.image, self.player.pos)
         self.update()
         #self.screen.blip(self.image, self.pos)
     
     def update(self):
         pos = self.player.get_pos()
         self.rect.centerx, self.rect.centery = pos
+        self.screen.blit(self.image, pos)
 
 
 class Game():
@@ -221,6 +223,7 @@ class Display():
                 self.walls.append(Wall(565, 554, 63, 273, [0,0,0,0], self.screen))
             else:
                 self.walls.append(Wall(690, 554, 63, 273, [0,0,0,0], self.screen))
+                
     def analyze_events(self, NumP):
         events = []
         for event in pygame.event.get():
@@ -302,13 +305,11 @@ def main(ip_address):
         with Client((ip_address, 6000), authkey = b"password") as conn:
             game = Game()
             side,gameinfo = conn.recv()
-            print("AAAAAAAA")
             print(f"I am playing {PLAYER[side]}")
             game.update(gameinfo)
             display = Display(game)
             display.inic_walls()
             while game.is_running():
-                print("OOOOOOOOOOOOOOOOOOOOOOO")
                 events = display.analyze_events(side)
                 for ev in events:
                     conn.send(ev)
