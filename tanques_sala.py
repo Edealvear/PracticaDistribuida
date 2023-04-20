@@ -333,7 +333,7 @@ class Game():
             for i in self.new_bullets:
                 newbull.append(i)
             info['new_bullets'] = newbull
-            for i in self.new_bullets:
+            for i in self.new_bullets:###################### LO MISMO QUE EN LA 346
                 self.new_bullets.remove(i)
             print("newbullets:",info["new_bullets"])
         if len(self.new_powerUps) > 0:
@@ -343,7 +343,7 @@ class Game():
             for i in self.elim:
                 elim.append(i)
             info['delete'] = elim
-            for i in self.elim:
+            for i in self.elim:################# PUEDE QUE AQUI NECESITE UN WAIT PARA QUE NO HAYA ERRORES DE ENVIAR LA INFO A UN JUGADOR Y A OTRO NO
                 self.elim.remove(i)
         print(info)
         self.lock.release()
@@ -430,7 +430,6 @@ def player(nplayer, conn, game):
     try:
         print(f"starting player {PLAYER[nplayer]}:{game.get_info()}")
         conn.send( (nplayer, game.get_info()) )
-        print("AAAAAAAAAAAAAAAAAAAAAAAAA")
         while game.is_running():
             command = ""
             while command != "next":
