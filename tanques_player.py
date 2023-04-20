@@ -99,8 +99,8 @@ class Draw_bullet(pygame.sprite.Sprite):
 
 
     def update(self) -> None:
-        pos = self.bullet.get_pos
-        self.rect.centerx, self.rect.centery = pos
+        pos = self.bullet.get_pos()
+        #self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
   
 
@@ -167,6 +167,11 @@ class Game():
     def update(self, game_info):
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
+        if "bullets" in game_info.keys():
+            for bull in self.bullets:
+                for b in game_info["bullets"]:
+                    if bull.id == b[0]:
+                        bull.pos = b[2]
         self.directions = game_info["dir"]
         self.set_score(game_info["score"])
         self.running = game_info["is_running"]
@@ -242,12 +247,13 @@ class Display():
                     events.append("Space")
             elif event.type == pygame.QUIT:
                 events.append("quit")
-        for bullet in self.bullets_sprites:
+        for bullet in self.bullets_sprites.values():
             for wall in self.walls:
                 if pygame.sprite.collide_rect(wall, bullet):
                     events.append("ColBW")
+                    events.append(str(bullet.bullet.id))
             for player in self.tanks_sprites:
-                if player.numP != bullet.owner and pygame.sprite.collide_rect(player, bullet):
+                if player.player.numP != bullet.bullet.owner and pygame.sprite.collide_rect(player, bullet):
                     events.append("Playerhit")
         for player in self.tanks_sprites:
             if len(self.powerups_sprites) > 0:
@@ -272,9 +278,9 @@ class Display():
     def new_sprites(self, gameinfo):
         if 'new_bullets' in gameinfo.keys():
             for bullet in gameinfo["new_bullets"]:
-                self.bullets[bullet[0]] =Bullet(bullet[0], bullet[2], bullet[3], bullet[0])
-                self.bullets_sprites[bullet[0]] = Draw_bullet(self.bullets[-1], self.screen)
-                self.all_sprites.add(self.bullets_sprites[-1])
+                self.bullets[bullet[0]] = Bullet(bullet[1], bullet[2], bullet[3], bullet[0])
+                self.bullets_sprites[bullet[0]] = Draw_bullet(self.bullets[bullet[0]], self.screen)
+                self.all_sprites.add(self.bullets_sprites[bullet[0]])
         if 'new_powerUps' in gameinfo.keys():      
             for powerUps in gameinfo["new_powerUps"]:
                 self.powerups.append(Power_UP(powerUps))
@@ -284,14 +290,15 @@ class Display():
     def delete_sprites(self, game_info):
         for (elem, elem_id) in game_info["delete"]:
             if elem == "bullet":
-                sprite = self.bullets_sprites[elem_id]
-                self.all_sprites.remove(sprite)
-                del self.bullets[elem_id]
-                del self.bullets_sprites[elem_id]
+                print(elem_id)
+                for k, sprite in self.bullets_sprites.items():
+                    if k == elem_id:
+                        k1 = k
+                        sprite.kill()
+                del self.bullets[k1]
+                del self.bullets_sprites[k1]
             if elem == "powerUp":
-                self.all_sprites.remove(self.powerups_sprites[0])
-                self.powerups.pop()
-                self.powerups_sprites.pop()
+                self.powerups_sprites[0].kill()
 
     def tick(self):
         self.clock.tick(FPS)

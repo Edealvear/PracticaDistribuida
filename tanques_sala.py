@@ -99,6 +99,9 @@ class Bullet():
             self.pos[0] -= self.speed
         else:
             self.pos[1] -= self.speed	
+    
+    def getinfo(self):
+        return [self.id, self.owner, self.pos, self.dir]
         
         
 class Draw_bullet():
@@ -310,6 +313,7 @@ class Game():
         self.lock.release()
 
     def get_info(self):
+        self.lock.acquire()
         info = {
             'pos_J1': self.players[0].get_pos(),
             'pos_J2': self.players[1].get_pos(),
@@ -319,13 +323,30 @@ class Game():
             'WINNER': self.winner.value
         }
         if len(self.bullets.keys()) > 0:
-            info['bullets'] = self.bullets
+            dicbull = []
+            for key in self.bullets.keys():
+                dicbull.append(self.bullets[key].getinfo())
+            info['bullets'] = dicbull
+            print(info["bullets"])
         if len(self.new_bullets) > 0:
-            info['new_bullets'] = self.new_bullets
+            newbull = []
+            for i in self.new_bullets:
+                newbull.append(i)
+            info['new_bullets'] = newbull
+            for i in self.new_bullets:
+                self.new_bullets.remove(i)
+            print("newbullets:",info["new_bullets"])
         if len(self.new_powerUps) > 0:
             info['new_powerUps'] = self.new_powerUps
         if len(self.elim) > 0:
-            info['delete'] = self.elim
+            elim = []
+            for i in self.elim:
+                elim.append(i)
+            info['delete'] = elim
+            for i in self.elim:
+                self.elim.remove(i)
+        print(info)
+        self.lock.release()
         return info
 
     def move_bullet(self):
@@ -356,12 +377,16 @@ class Game():
                     self.score[player.numP] = player.lives
         self.lock.release()
 
-    def collide_BW(self):
+    def collide_BW(self, id):
         self.lock.acquire()
-        for bull in self.bullets.values:
-            for wall in self.walls:
-                if collide(bull, wall):
-                    self.elimbull(bull)
+        for idn, bull in self.bullets.items():
+            if idn == id:   
+
+        #     for wall in self.walls:
+        #         if collide(bull, wall):
+        #             self.elimbull(bull)
+                print(self.bullets, flush = True )
+                self.elimbull(bull)
         self.lock.release()
 
     def shoot(self, numP):
@@ -422,7 +447,8 @@ def player(nplayer, conn, game):
                 elif command == "Space":
                     game.shoot(nplayer)
                 elif command == "ColBW":
-                    game.collide_BW()
+                    id = conn.recv()
+                    game.collide_BW(id)
                 elif command == "Playerhit":
                     game.HitPlayer()
                 elif command == "ColPW":
