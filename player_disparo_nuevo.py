@@ -7,61 +7,20 @@ import sys, os
 SIZE = (830, 884)
 WHITE = (255,255,255)
 FPS = 60
-BullSize = 16
-PowerUpSize = 50
-POSPWUPX = 150
-POSPWUPY = 200
+BullSize = 30
 PlayerSize = 50
 PLAYER = [1,2]
 
-class Bullet():
-    def __init__(self, NumP, position, direction, id, speed = 50):
-        self.id = id
-        self.owner = NumP
-        self.pos = position
-        self.speed = speed
-        self.dir = direction #0 : izq; 1:arriba; 2:Der ; 3: abajo
-        self.active = True
-    
-    def get_pos(self):
-        return self.pos
-    
-
-    
-    def get_id(self):
-        return self.id
-        
-class Draw_bullet(pygame.sprite.Sprite):
-    def __init__(self, bullet, screen):
-        super().__init__()
-        self.screen = screen
-        self.bullet = bullet
-        self.image = pygame.image.load(r"bullet.png")
-        self.screen.blit(self.image, self.bullet.pos)
-        self.rect = self.image.get_rect()
-        self.update()
-        #self.rect.blit(self.image_load, (0,0))
-        #self.screen.blit(self.rect, self.rect_pos)
-
-    def update(self) -> None:
-        pos = self.bullet.get_pos()
-        self.rect.centerx, self.rect.centery = pos
-        self.screen.blit(self.image, pos)
 
 
 class Player():
     def __init__(self, num_P, pos =[None, None]):
         self.numP = num_P
         self.pos = pos
-        self.powerups = {
-            "shield" : 0,
-            "speed" : 0,
-            "supershot" : 0
-        }
+
         self.lives = 5
         self.direction  = None 
 
-    
     def get_pos(self):
         return self.pos
 
@@ -92,8 +51,6 @@ class Player_display(pygame.sprite.Sprite):
 class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
-        self.bullets = []
-        self.score = [0,0]
         self.running = True
     
     def getplayer(self, numP):
@@ -101,23 +58,14 @@ class Game():
     
     def set_posplayer(self, numP, pos):
         self.players[numP].set_pos(pos)
-    
-    def get_score(self):
-        return self.score
 
-    def set_score(self, score):
-        self.score = score
+
 
     def update(self, game_info):
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
-        if "bullets" in game_info.keys():
-            for bull in self.bullets:
-                for b in game_info["bullets"]:
-                    if bull.id == b[0]:
-                        bull.pos = b[2]
+        
         self.directions = game_info["dir"]
-        self.set_score(game_info["score"])
         self.running = game_info["is_running"]
     
     def is_running(self):
@@ -132,13 +80,15 @@ class Display():
         self.game = game
         self.tanks = [game.getplayer(i) for i in range(2)]
         self.tanks_sprites = [Player_display(self.tanks[i], self.screen) for i in range(2)]
-        self.bullets = {}
-        self.bullets_sprites = {}
+
         self.collision_group = pygame.sprite.Group()
         self.all_sprites=pygame.sprite.Group()
+        
+        # No hace falta comprobarla colision manualmente, hay uncoando especifico que lo hace
         for i in range(2):
             self.collision_group.add(self.tanks_sprites[i])
             self.all_sprites.add(self.tanks_sprites[i])
+
         self.background = pygame.image.load("Mapa.png")
         self.clock = pygame.time.Clock()
         pygame.init()
@@ -162,46 +112,20 @@ class Display():
                     events.append("Space")
             elif event.type == pygame.QUIT:
                 events.append("quit")
-        for bullet in self.bullets_sprites.values():
-            for player in self.tanks_sprites:
-                if player.player.numP != bullet.bullet.owner and pygame.sprite.collide_rect(player, bullet):
-                    
-                    events.append("Playerhit")
+        
         
         return events
 
     def refresh(self):
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
-        score = self.game.get_score()
         font = pygame.font.Font(None, 60)
-        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
+        text = font.render(f"P1 || P2 ", True ,WHITE)
         self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
-    def new_sprites(self, gameinfo):
-        if 'new_bullets' in gameinfo.keys():
-            for i in gameinfo["new_bullets"]:
-                self.bullets[i[0]] = Bullet(i[1], i[2], i[3], i[0])
-                self.bullets_sprites[i[0]] = Draw_bullet(self.bullets[i[0]], self.screen)
-                self.all_sprites.add(self.bullets_sprites[i[0]])
-                self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
         
-
-    def delete_sprites(self, game_info):
-        for (elem, elem_id) in game_info["delete"]:
-            if elem == "bullet":
-                print(elem_id)
-                for k, sprite in self.bullets_sprites.items():
-                    if k == elem_id:
-                        k1 = k
-                        sprite.kill()
-                del self.bullets[k1]
-                del self.bullets_sprites[k1]
-            
-            
-    
 
     def tick(self):
         self.clock.tick(FPS)
@@ -236,6 +160,8 @@ def main(ip_address):
         traceback.print_exc()
     finally:
         pygame.quit()
+
+
 if __name__=="__main__":
     ip_address = "127.0.0.1"
     if len(sys.argv)>1:

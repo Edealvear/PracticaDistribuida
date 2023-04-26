@@ -32,14 +32,13 @@ def collide(a,b):
 
         
 class Bullet():
-    def __init__(self, NumP, position, direction, id, damage = 1, speed = 5):
+    def __init__(self, NumP, position, direction, id, speed = 5):
         self.owner = NumP
         self.id = id
         self.width = BullSize
         self.height = BullSize
         self.active = True
         self.pos = position
-        self.damage = damage
         self.speed = speed
         self.dir = direction#0 : izq; 1:arriba; 2:Der ; 3: abajo
         self.active = True
@@ -124,8 +123,7 @@ class Player():
         return f"Tank"
 
     def hit(self, bullet):
-
-        self.lives -= bullet.damage
+        self.lives -= 1
 
    
 class Game():
@@ -201,6 +199,7 @@ class Game():
                 dicbull.append(self.bullets[key].getinfo())
             info['bullets'] = dicbull
             print(info["bullets"])
+
         if len(self.new_bullets) > 0:
             newbull = []
             for i in self.new_bullets:
@@ -209,6 +208,7 @@ class Game():
             for i in self.new_bullets:###################### LO MISMO QUE EN LA 346
                 self.new_bullets.remove(i)
             print("newbullets:",info["new_bullets"])
+            
         if len(self.elim) > 0:
             elim = []
             for i in self.elim:
@@ -266,7 +266,7 @@ class Game():
         dir = self.players[numP].direction
         
         id = str(random.randint(0,1000))
-        bullet = Bullet(owner, pos, dir, id, damage)
+        bullet = Bullet(owner, pos, dir, id)
         self.bullets[id] = bullet
         self.new_bullets.append([id, owner, pos, dir])
         self.lock.release()
