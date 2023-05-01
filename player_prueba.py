@@ -266,7 +266,7 @@ def main(ip_address):
         with Client((ip_address, 6000), authkey = b"password") as conn:
             game = Game()
             side,gameinfo = conn.recv()
-            print(f"I am playing {PLAYER[side]}")
+            print(f"I am player {PLAYER[side]}")
             game.update(gameinfo)
             display = Display(game)
             

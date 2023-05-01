@@ -4,7 +4,9 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 
-SIZE = (830, 884)
+WIDTH = 830
+HEIGHT = 884
+SIZE = (WIDTH, HEIGHT)
 
 MinMapa = 87
 
@@ -32,7 +34,7 @@ def collide(a,b):
 
         
 class Bullet():
-    def __init__(self, NumP, position, direction, id, speed = 50):
+    def __init__(self, NumP, position, direction, id, speed = 30):
         self.owner = NumP
         self.id = id
         self.width = BullSize
@@ -40,7 +42,7 @@ class Bullet():
         self.active = True
         self.pos = position
         self.speed = speed
-        self.dir = direction#0 : izq; 1:arriba; 2:Der ; 3: abajo
+        self.dir = direction # 0: izq ; 1: arriba; 2: der ; 3: abajo
         self.active = True
 
     def update(self):
@@ -94,37 +96,41 @@ class Player():
         self.lives = 5
           
 
-    
     def get_pos(self):
         return self.pos
     
     def set_pos(self, pos):
         self.pos = pos
     
-    def moveUp(self):
-        self.pos[1]-= (15)
-        self.dir = 1
-        if self.pos[1] < 0:
-            self.pos[1]=0
-        
-
-    def moveDown(self):
-        self.dir = 3
-        self.pos[1]+= (15)
-        if self.pos[1] > SIZE[1]:
-            self.pos[1] = SIZE[1]
     
     def moveLeft(self):
         self.dir = 0
         self.pos[0] -= (15)
-        if self.pos[0]<0:
-            self.pos[0]=0
+        if self.pos[0] < 30:
+            self.pos[0] = 30
+
+    def moveUp(self):
+        self.pos[1]-= (15)
+        self.dir = 1
+        if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
+            self.pos[1] = 120
 
     def moveRight(self):
         self.dir = 2
         self.pos[0] += (15 ) 
-        if self.pos[0]>SIZE[0]:
-            self.pos[0] = SIZE[0]
+        if self.pos[0] > WIDTH - 30:
+            self.pos[0] = WIDTH - 30
+
+    def moveDown(self):
+        self.dir = 3
+        self.pos[1]+= (15)
+        if self.pos[1] > HEIGHT - 30: 
+            self.pos[1] = HEIGHT - 30
+
+
+    
+
+
 
     def __str__(self):
         return f"Tank"
