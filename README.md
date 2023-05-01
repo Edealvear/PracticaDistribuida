@@ -1,18 +1,40 @@
-# PracticaDistribuida
+# Practica 3 - Programacion Distribuida (PRPA)
+
+Consiste en 
+
+- Enrique Ernesto de Albear
+- Lucía Roldán
+- Laura Cano Gómez
+
 
 tanques_sala.py es la sala en la que se ejecuta el juego, hay que inicializarlo con la IP del
 ordenador, y le va mandando los datos de la partida al jugador.
 
 Tanques_player.py es el archivo del jugador, se tiene que inicializar con la IP con la que 
-se ha inicializado la sala, los controles son con las flechas, y se dispara con es espacio. Cada
+se ha inicializado la sala, los controles son con las flechas, y se dispara con el espacio. Cada
 jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 
-Los bonus son :
-S: es un escudo que aguanta un golpe
-V: aumenta la velocidad del tanque
-P: aumenta el daño de la bala del tanque
+# PENDIENTE ARREGLAR:
+
+- Los sprite de los tanques rotan segun el movimiento
+- Las balas se generan delante de los tanques segun su direccion
+
+- Las balas se mueven segun la direccion en la que se generan
+- Las balas se eliminan al tocar los limites del tablero 
+
+- Gestionar la colision de bala-jugador para fin de partida o descuento de vida
+
+- Crear los muros en las posiciones correctas
+- Gestionar la colision de muro-jugador para no permitir el movimiento sobre ellos
+- Gestionar la colision de muro-bala para eliminar la bala 
 
 
+
+- Extras:
+  - Poner los fondos de los sprite transparentes
+  - Poner un sprite de animacion cuando las balas se eliminen, como en el tutorial
+  - Musica y efectos de sonido al disparar, morir o eliminar balas
+  
 
 
 
