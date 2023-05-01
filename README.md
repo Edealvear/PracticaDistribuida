@@ -1,12 +1,13 @@
 # Practica 3 - Programacion Distribuida (PRPA)
 
-Consiste en 
+Clon de una pantalla sencilla del mítico juego Battle City, realizado en Python con programacion paralela, apoyandonos en la librería pygame.
 
+Integrantes del equipo:
 - Enrique Ernesto de Albear
 - Lucía Roldán
 - Laura Cano Gómez
 
-
+## Archivos e inicialización del juego 
 tanques_sala.py es la sala en la que se ejecuta el juego, hay que inicializarlo con la IP del
 ordenador, y le va mandando los datos de la partida al jugador.
 
@@ -35,11 +36,3 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
   - Poner un sprite de animacion cuando las balas se eliminen, como en el tutorial
   - Musica y efectos de sonido al disparar, morir o eliminar balas
   
-
-
-
-!!!!! OJO !!!!!!
-Puede que haya un problema de que algunas de las balas no se manden a un jugador o no se eliminen nunca
-revisad eso, creo que tengo una idea de como solucionarlo que es hacer esperar con un wait antes de eliminar 
-la información a que ambos jugadores tengan los datos, es decir antes de entrar en las líneas 
-336 y 346, y habrá que hacer algo parecido cuando añadamos si lo hacemos los PowerUps
