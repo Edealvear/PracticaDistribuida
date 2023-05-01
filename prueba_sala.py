@@ -32,7 +32,7 @@ def collide(a,b):
 
         
 class Bullet():
-    def __init__(self, NumP, position, direction, id, speed = 5):
+    def __init__(self, NumP, position, direction, id, speed = 50):
         self.owner = NumP
         self.id = id
         self.width = BullSize
@@ -52,23 +52,30 @@ class Bullet():
             self.pos[0] -= self.speed
         else:
             self.pos[1] -= self.speed	
+        
+        
+
     
     def getinfo(self):
         return [self.id, self.owner, self.pos, self.dir]
+    
+    def get_pos(self):
+        return self.pos   
         
         
-class Draw_bullet():
-    def __init__(self, bullet):
-        global screen
-        self.width = BullSize
-        self.height = BullSize
+class Draw_bullet(pygame.sprite.Sprite):
+    def __init__(self, bullet, screen):
         super().__init__()
-        self.pwup = bullet
+        self.screen = screen
+        
         self.image = pygame.image.load(r"bullet.png")
         screen.blip(self.image, bullet.pos)
     
+   
     def update(self, bullet):
-        pass
+        pos = self.bullet.get_pos()
+        self.rect.centerx, self.rect.centery = pos
+        self.screen.blit(self.image, pos)
         
 
 class Player():
@@ -140,6 +147,8 @@ class Game():
         self.lock = Lock()
         self.winner = Value('i',0) 
 
+        self.check = Value('i',0)
+
     
 
     def get_player(self, side):
@@ -205,8 +214,10 @@ class Game():
             for i in self.new_bullets:
                 newbull.append(i)
             info['new_bullets'] = newbull
-            for i in self.new_bullets:###################### LO MISMO QUE EN LA 346
-                self.new_bullets.remove(i)
+
+            if self.check.value >= 1:
+                for i in self.new_bullets:
+                    self.new_bullets.remove(i)
             print("newbullets:",info["new_bullets"])
             
         if len(self.elim) > 0:
@@ -214,15 +225,22 @@ class Game():
             for i in self.elim:
                 elim.append(i)
             info['delete'] = elim
-            for i in self.elim:################# PUEDE QUE AQUI NECESITE UN WAIT PARA QUE NO HAYA ERRORES DE ENVIAR LA INFO A UN JUGADOR Y A OTRO NO
-                self.elim.remove(i)
+            if self.check.value >= 1:
+                for i in self.elim:
+                    self.elim.remove(i)
         
+        if self.check.value ==1:
+            self.check.value = 0
+        else:
+            self.check.value += 1
+
         return info
 
     def move_bullet(self):
         self.lock.acquire()
-        for bull in self.bullets.values():
+        for (id, bull) in self.bullets.items():
             bull.update()
+            self.bullets[id] = bull 
             if bull.pos[0] < 0:
                 self.elimbull(bull)
             elif bull.pos[0] > SIZE[0]:
@@ -231,8 +249,25 @@ class Game():
                 self.elimbull(bull)
             elif bull.pos[1] > SIZE[1]:
                 self.elimbull(bull)
+            print(f'POSI NUEVA: {bull.pos}')
         self.lock.release()
-
+    '''
+    def move_bullet(self):
+        self.lock.acquire()
+        for bull in self.bullets.values():
+            bull.update()
+            print(f'POSI NUEVA: {bull.pos}')
+            if bull.pos[0] < 0:
+                self.elimbull(bull)
+            elif bull.pos[0] > SIZE[0]:
+                self.elimbull(bull)
+            elif bull.pos[1] < 0:
+                self.elimbull(bull)
+            elif bull.pos[1] > SIZE[1]:
+                self.elimbull(bull)
+            print(f'POSI NUEVA: {bull.pos}')
+        self.lock.release()
+    '''
     def elimbull(self, bull):
         self.elim.append(("bullet", bull.id))
         del self.bullets[bull.id]

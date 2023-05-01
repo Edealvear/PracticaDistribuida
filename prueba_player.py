@@ -107,7 +107,22 @@ class Game():
 
     def set_score(self, score):
         self.score = score
+    '''
+    def update(self, game_info):
+        self.set_posplayer(0, game_info["pos_J1"])
+        self.set_posplayer(1, game_info["pos_J2"])
+        if 'bullets' in game_info.keys():
+            for bull in self.bullets:
 
+                for b in game_info["bullets"]:
+                    if bull.id == b[0]:
+                        bull.pos = b[2]
+                print(f'POSIBALA: {bull.pos}')
+        self.directions = game_info["dir"]
+        self.set_score(game_info["score"])
+        self.running = game_info["is_running"]
+    '''
+    
     def update(self, game_info):
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
@@ -116,10 +131,16 @@ class Game():
                 for b in game_info["bullets"]:
                     if bull.id == b[0]:
                         bull.pos = b[2]
+
+    
         self.directions = game_info["dir"]
         self.set_score(game_info["score"])
         self.running = game_info["is_running"]
-    
+
+
+
+
+
     def is_running(self):
         return self.running
     
@@ -160,6 +181,9 @@ class Display():
                     events.append("Right")
                 elif event.key == pygame.K_SPACE:
                     events.append("Space")
+                    
+                
+
             elif event.type == pygame.QUIT:
                 events.append("quit")
         for bullet in self.bullets_sprites.values():
@@ -170,25 +194,38 @@ class Display():
         
         return events
 
-    def refresh(self):
+    def refresh(self, gameinfo):
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
+        self.new_sprites(gameinfo)
         score = self.game.get_score()
         font = pygame.font.Font(None, 60)
         text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
         self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
-
+    
+    
+    def new_sprites(self, gameinfo):
+        if 'new_bullets' in gameinfo.keys():
+            for bullet in gameinfo["new_bullets"]:
+                bull =  Bullet(bullet[1], bullet[2], bullet[3], bullet[0])
+                self.game.bullets.append(bull)
+                self.bullets[bull.id] = self.game.bullets[-1]
+                self.bullets_sprites[bullet[0]] = Draw_bullet(self.game.bullets[-1], self.screen)
+                self.all_sprites.add(self.bullets_sprites[bullet[0]])
+                #self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
+                
+    '''
     def new_sprites(self, gameinfo):
         if 'new_bullets' in gameinfo.keys():
             for i in gameinfo["new_bullets"]:
                 self.bullets[i[0]] = Bullet(i[1], i[2], i[3], i[0])
                 self.bullets_sprites[i[0]] = Draw_bullet(self.bullets[i[0]], self.screen)
                 self.all_sprites.add(self.bullets_sprites[i[0]])
-                self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
+                #self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
         
-
+    
     def delete_sprites(self, game_info):
         for (elem, elem_id) in game_info["delete"]:
             if elem == "bullet":
@@ -199,7 +236,21 @@ class Display():
                         sprite.kill()
                 del self.bullets[k1]
                 del self.bullets_sprites[k1]
-            
+    '''
+
+    def delete_sprites(self, game_info):
+        for (elem, elem_id) in game_info["delete"]:
+            if elem == "bullet":
+                print(elem_id)
+                k1 = []
+                for k, sprite in self.bullets_sprites.items():
+                    if k == elem_id:
+                        k1.append(k)
+                        sprite.kill()
+                for i in k1:
+                    del self.bullets[i]
+                    del self.bullets_sprites[i]
+                 
             
     
 
@@ -227,10 +278,21 @@ def main(ip_address):
                         game.stop()
                 conn.send("next")
                 gameinfo = conn.recv()
-                game.update(gameinfo)
+                if gameinfo["is_running"] == False:
+                    Win = gameinfo["WINNER"] 
+                    font = pygame.font.Font(None, 90)
+                    text = font.render(f"Winner player N {Win + 1}", True ,WHITE)
+                    display.screen.blit(display.background, (0,0))
+                    display.screen.blit(text, (SIZE[0]-250, 10))
+                    time.sleep(10)
+                    game.running = False
+                else:
+                    game.update(gameinfo)
+                    display.new_sprites(gameinfo)
+                    if 'delete' in gameinfo.keys():
+                        display.delete_sprites(gameinfo)                
                 
-                
-                display.refresh()
+                display.refresh(gameinfo)
                 display.tick()
     except:
         traceback.print_exc()
