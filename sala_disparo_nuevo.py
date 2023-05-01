@@ -4,7 +4,9 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 
-SIZE = (830, 884)
+WIDTH = 830
+HEIGHT = 884
+SIZE = (WIDTH, HEIGHT)
 
 MinMapa = 87
 
@@ -13,6 +15,7 @@ BullSize = 30
 
 PLAYER = [0,1]
 
+# Direction ->  0 = Norte ; 1 = Sur ; 2 = Este ; 3 = Oeste
 
 
 
@@ -27,11 +30,10 @@ class Player():
             self.direction = 2
         else:
             self.pos = [350,495]
-            self.direction  = 0
+            self.direction  = 3
        
-        self.lives = 5
+        self.lives = 1
           
-
     
     def get_pos(self):
         return self.pos
@@ -41,28 +43,27 @@ class Player():
     
     def moveUp(self):
         self.pos[1]-= (15)
-        self.dir = 1
-        if self.pos[1] < 0:
-            self.pos[1]=0
-        
-
-    def moveDown(self):
-        self.dir = 3
-        self.pos[1]+= (15)
-        if self.pos[1] > SIZE[1]:
-            self.pos[1] = SIZE[1]
-    
-    def moveLeft(self):
         self.dir = 0
-        self.pos[0] -= (15)
-        if self.pos[0]<0:
-            self.pos[0]=0
+        if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
+            self.pos[1] = 120
+        
+    def moveDown(self):
+        self.dir = 1
+        self.pos[1]+= (15)
+        if self.pos[1] > HEIGHT - 30: 
+            self.pos[1] = HEIGHT - 30
 
     def moveRight(self):
         self.dir = 2
         self.pos[0] += (15 ) 
-        if self.pos[0]>SIZE[0]:
-            self.pos[0] = SIZE[0]
+        if self.pos[0] > WIDTH - 30:
+            self.pos[0] = WIDTH - 30
+    
+    def moveLeft(self):
+        self.dir = 3
+        self.pos[0] -= (15)
+        if self.pos[0] < 30:
+            self.pos[0] = 30
 
 
     def __str__(self):
@@ -209,3 +210,4 @@ if __name__=='__main__':
     if len(sys.argv)>1:
         ip_address = sys.argv[1]
     main(ip_address)
+
