@@ -77,7 +77,8 @@ class Player_display(pygame.sprite.Sprite):
         super().__init__()
         self.screen = screen
         self.player = player 
-        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}.png")
+        self.dir = 0
+        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_right.png")
         self.rect = self.image.get_rect()
         self.screen.blit(self.image, self.player.pos)
         self.update()
@@ -87,6 +88,16 @@ class Player_display(pygame.sprite.Sprite):
         pos = self.player.get_pos()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
+
+        if self.dir == 0:
+            self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
+        elif self.dir == 1:
+            self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_up.png")
+        elif self.dir == 2:
+            self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_right.png")
+        elif self.dir == 3:
+            self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_down.png")
+
 
 
 class Game():
@@ -172,12 +183,16 @@ class Display():
                 if event.key == pygame.K_ESCAPE:
                     events.append("quit")
                 elif event.key == pygame.K_DOWN:
+                    self.tanks_sprites[NumP].dir = 3
                     events.append("Down")
                 elif event.key == pygame.K_UP:
+                    self.tanks_sprites[NumP].dir = 1
                     events.append("Up")
                 elif event.key == pygame.K_LEFT:
+                    self.tanks_sprites[NumP].dir = 0
                     events.append("Left")
                 elif event.key == pygame.K_RIGHT:
+                    self.tanks_sprites[NumP].dir = 2
                     events.append("Right")
                 elif event.key == pygame.K_SPACE:
                     events.append("Space")
