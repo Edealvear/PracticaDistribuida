@@ -17,10 +17,10 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 
 # PENDIENTE ARREGLAR:
 
-- Los sprite de los tanques rotan segun el movimiento
+
 - Las balas se generan delante de los tanques segun su direccion
 
-- Las balas se mueven segun la direccion en la que se generan
+
 - Las balas se eliminan al tocar los limites del tablero 
 
 - Gestionar la colision de bala-jugador para fin de partida o descuento de vida
