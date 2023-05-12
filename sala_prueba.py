@@ -47,13 +47,13 @@ class Bullet():
 
     def update(self):
         if self.dir == 0:
-            self.pos[0] += self.speed
-        elif self.dir == 1:
-            self.pos[1] += self.speed
-        elif self.dir == 2:
             self.pos[0] -= self.speed
+        elif self.dir == 1:
+            self.pos[1] -= self.speed
+        elif self.dir == 2:
+            self.pos[0] += self.speed
         else:
-            self.pos[1] -= self.speed	
+            self.pos[1] += self.speed	
         
         
 
@@ -102,27 +102,27 @@ class Player():
     def set_pos(self, pos):
         self.pos = pos
     
-    
-    def moveLeft(self):
-        self.dir = 0
+    # 0: izq ; 1: arriba; 2: der ; 3: abajo
+    def moveLeftP(self):
+        self.direction = 0
         self.pos[0] -= (15)
         if self.pos[0] < 30:
             self.pos[0] = 30
 
-    def moveUp(self):
+    def moveUpP(self):
+        self.direction = 1
         self.pos[1]-= (15)
-        self.dir = 1
         if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
             self.pos[1] = 120
 
-    def moveRight(self):
-        self.dir = 2
+    def moveRightP(self):
+        self.direction = 2
         self.pos[0] += (15 ) 
         if self.pos[0] > WIDTH - 30:
             self.pos[0] = WIDTH - 30
 
-    def moveDown(self):
-        self.dir = 3
+    def moveDownP(self):
+        self.direction = 3
         self.pos[1]+= (15)
         if self.pos[1] > HEIGHT - 30: 
             self.pos[1] = HEIGHT - 30
@@ -173,28 +173,28 @@ class Game():
     def moveUp(self, player):
         self.lock.acquire()
         p = self.players[player]
-        p.moveUp()
+        p.moveUpP()
         self.players[player] = p
         self.lock.release()
 
     def moveDown(self, player):
         self.lock.acquire()
         p = self.players[player]
-        p.moveDown()
+        p.moveDownP()
         self.players[player] = p
         self.lock.release()
 
     def moveRight(self, player):
         self.lock.acquire()
         p = self.players[player]
-        p.moveRight()
+        p.moveRightP()
         self.players[player] = p
         self.lock.release()
 
     def moveLeft(self, player):
         self.lock.acquire()
         p = self.players[player]
-        p.moveLeft()
+        p.moveLeftP()
         self.players[player] = p
         self.lock.release()
 
