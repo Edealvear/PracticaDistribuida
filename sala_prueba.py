@@ -37,9 +37,9 @@ class Bullet():
     def __init__(self, NumP, position, direction, id, speed = 30):
         self.owner = NumP
         self.id = id
-        self.width = BullSize
-        self.height = BullSize
-        self.active = True
+        #self.width = BullSize
+        #self.height = BullSize
+        
         self.pos = position
         self.speed = speed
         self.dir = direction # 0: izq ; 1: arriba; 2: der ; 3: abajo
@@ -48,10 +48,13 @@ class Bullet():
     def update(self):
         if self.dir == 0:
             self.pos[0] -= self.speed
+
         elif self.dir == 1:
             self.pos[1] -= self.speed
+
         elif self.dir == 2:
             self.pos[0] += self.speed
+
         else:
             self.pos[1] += self.speed	
         
@@ -64,7 +67,7 @@ class Bullet():
     def get_pos(self):
         return self.pos   
         
-        
+'''
 class Draw_bullet(pygame.sprite.Sprite):
     def __init__(self, bullet, screen):
         super().__init__()
@@ -78,7 +81,7 @@ class Draw_bullet(pygame.sprite.Sprite):
         pos = self.bullet.get_pos()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
-        
+'''        
         
 
 class Player():
@@ -308,7 +311,25 @@ class Game():
         dir = self.players[numP].direction
         
         id = str(random.randint(0,1000))
-        bullet = Bullet(owner, pos, dir, id)
+
+        # Creacion de las balas delante del tanque segun la direccion que tenga
+        if dir == 0:
+            pos[0] = pos[0] - 45
+            bullet = Bullet(owner, pos, dir, id)
+
+        elif dir == 1:
+            pos[1] = pos[1] - 45
+            bullet = Bullet(owner, pos, dir, id)
+
+        elif dir == 2:
+            pos[0] = pos[0] + 45
+            bullet = Bullet(owner, pos, dir, id)
+
+        else:
+            pos[1] = pos[1] + 45
+            bullet = Bullet(owner, pos, dir, id)    
+        
+
         self.bullets[id] = bullet
         self.new_bullets.append([id, owner, pos, dir])
         self.lock.release()

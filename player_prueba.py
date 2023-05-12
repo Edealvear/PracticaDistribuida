@@ -14,6 +14,8 @@ POSPWUPY = 200
 PlayerSize = 50
 PLAYER = [1,2]
 
+
+
 class Bullet():
     def __init__(self, NumP, position, direction, id, speed = 50):
         self.id = id
@@ -26,11 +28,11 @@ class Bullet():
     def get_pos(self):
         return self.pos
     
-
-    
     def get_id(self):
         return self.id
         
+
+
 class Draw_bullet(pygame.sprite.Sprite):
     def __init__(self, bullet, screen):
         super().__init__()
@@ -149,6 +151,7 @@ class Game():
         self.set_posplayer(1, game_info["pos_J2"])
         self.set_dirplayer(0, game_info["dir"][0])
         self.set_dirplayer(1, game_info["dir"][1])
+
         if "bullets" in game_info.keys():
             for bull in self.bullets:
                 for b in game_info["bullets"]:
@@ -161,14 +164,13 @@ class Game():
         self.running = game_info["is_running"]
 
 
-
-
-
     def is_running(self):
         return self.running
     
     def stop(self):
         self.running = False
+
+
     
 class Display():
     def __init__(self, game):
@@ -208,11 +210,10 @@ class Display():
                     events.append("Right")
                 elif event.key == pygame.K_SPACE:
                     events.append("Space")
-                    
-                
 
             elif event.type == pygame.QUIT:
                 events.append("quit")
+
         for bullet in self.bullets_sprites.values():
             for player in self.tanks_sprites:
                 if player.player.numP != bullet.bullet.owner and pygame.sprite.collide_rect(player, bullet):
@@ -278,8 +279,6 @@ class Display():
                     del self.bullets[i]
                     del self.bullets_sprites[i]
                  
-            
-    
 
     def tick(self):
         self.clock.tick(FPS)
@@ -287,6 +286,8 @@ class Display():
     @staticmethod
     def quit():
         pygame.quit()
+
+
 
 def main(ip_address):
     try:
@@ -325,6 +326,9 @@ def main(ip_address):
         traceback.print_exc()
     finally:
         pygame.quit()
+
+
+        
 if __name__=="__main__":
     ip_address = "127.0.0.1"
     if len(sys.argv)>1:
