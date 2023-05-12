@@ -53,20 +53,22 @@ class Player():
     def __init__(self, num_P, pos =[None, None]):
         self.numP = num_P
         self.pos = pos
-        self.powerups = {
-            "shield" : 0,
-            "speed" : 0,
-            "supershot" : 0
-        }
         self.lives = 5
         self.direction  = None 
 
     
     def get_pos(self):
         return self.pos
+    def get_dir(self):
+        return self.direction
+        
 
     def set_pos(self, pos):
         self.pos = pos
+
+    def set_dir(self,dir):
+        self.direction = dir
+        
 
     def __str__(self):
         return f"Tank {self.numP}"
@@ -75,10 +77,10 @@ class Player():
 class Player_display(pygame.sprite.Sprite):
     def __init__(self, player, screen):
         super().__init__()
+        self.dir = 0
         self.screen = screen
         self.player = player 
-        self.dir = 0
-        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_right.png")
+        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
         self.rect = self.image.get_rect()
         self.screen.blit(self.image, self.player.pos)
         self.update()
@@ -86,18 +88,22 @@ class Player_display(pygame.sprite.Sprite):
     
     def update(self):
         pos = self.player.get_pos()
+        dir = self.player.get_dir()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
 
-        if self.dir == 0:
+        if dir == 0:
+            
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
-        elif self.dir == 1:
+        elif dir == 1:
+            
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_up.png")
-        elif self.dir == 2:
+        elif dir == 2:
+            
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_right.png")
-        elif self.dir == 3:
+        elif dir == 3:
+        
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_down.png")
-
 
 
 class Game():
@@ -112,6 +118,10 @@ class Game():
     
     def set_posplayer(self, numP, pos):
         self.players[numP].set_pos(pos)
+
+    def set_dirplayer(self,numP,dir):
+        self.players[numP].set_dir(dir)
+
     
     def get_score(self):
         return self.score
@@ -137,6 +147,8 @@ class Game():
     def update(self, game_info):
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
+        self.set_dirplayer(0, game_info["dir"][0])
+        self.set_dirplayer(1, game_info["dir"][1])
         if "bullets" in game_info.keys():
             for bull in self.bullets:
                 for b in game_info["bullets"]:

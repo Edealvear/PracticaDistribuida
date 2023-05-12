@@ -79,6 +79,7 @@ class Draw_bullet(pygame.sprite.Sprite):
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
         
+        
 
 class Player():
     def __init__(self, num_P):
@@ -102,7 +103,7 @@ class Player():
     def set_pos(self, pos):
         self.pos = pos
     
-    # 0: izq ; 1: arriba; 2: der ; 3: abajo
+    
     def moveLeftP(self):
         self.direction = 0
         self.pos[0] -= (15)
@@ -110,8 +111,8 @@ class Player():
             self.pos[0] = 30
 
     def moveUpP(self):
-        self.direction = 1
         self.pos[1]-= (15)
+        self.direction= 1
         if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
             self.pos[1] = 120
 
