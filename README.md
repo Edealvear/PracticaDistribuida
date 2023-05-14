@@ -18,13 +18,12 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 # PENDIENTE ARREGLAR:
 
 
-- Gestionar la colision de bala-jugador para fin de partida o descuento de vida
 
-- Crear los muros en las posiciones correctas
 
-- Gestionar la colision de muro-bala para eliminar la bala 
-
+- Gestionar la colision de muro-bala para eliminar la bala (creo que el bullet se elimina pero su sprite no, en los ficheros sala_intento, player_intento he intentado borrarlos pero por algún motivo no lo hace) 
 - Arreglar por qué las balas a veces no se muestran en las dos pantallas.
+- Gestionar la colision de bala-jugador para fin de partida(sin vidas)
+- Primer intento de comentarios. ¿Qué decimos de los mutex? habrá que decir algo de la programación distribuida
 
 
 
