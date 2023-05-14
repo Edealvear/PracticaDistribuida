@@ -287,13 +287,13 @@ class Game():
         for (id, bull) in self.bullets.items():
             bull.update()
             self.bullets[id] = bull 
-            if bull.pos[0] < 0:
+            if bull.pos[0] < -50:
                 self.elimbull(bull)
-            elif bull.pos[0] > SIZE[0]:
+            elif bull.pos[0] > SIZE[0] +50:
                 self.elimbull(bull)
-            elif bull.pos[1] < 0:
+            elif bull.pos[1] < 0 -50:
                 self.elimbull(bull)
-            elif bull.pos[1] > SIZE[1]:
+            elif bull.pos[1] > SIZE[1] +50:
                 self.elimbull(bull)
         self.lock.release()
 

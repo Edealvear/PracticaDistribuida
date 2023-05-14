@@ -318,9 +318,9 @@ class Display():
         self.screen.blit(self.background,(0,0))
         self.new_sprites(gameinfo)
         score = self.game.get_score()
-        font = pygame.font.Font(None, 60)
-        text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
-        self.screen.blit(text, (15,15))
+        #font = pygame.font.Font(None, 60)
+        #text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
+        #self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
     
