@@ -70,8 +70,9 @@ class Bullet():
 
 
 class Player():
-    def __init__(self, num_P):
-        
+    def __init__(self, num_P,game):
+
+        self.game = game
         self.numP = num_P
         self.width = PlayerSize
         self.height = PlayerSize
@@ -90,31 +91,55 @@ class Player():
     
     def set_pos(self, pos):
         self.pos = pos
+
+    def collide(self,a,b,dx,dy):
+        
+        col = False
+        if a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy >= b.pos[1]: 
+            col = (a.pos[0]+dx-b.pos[0] < a.width) and (a.pos[1]+dy- b.pos[1] < a.height)
+        elif a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy < b.pos[1]:
+            col = (a.pos[0]+dx-b.pos[0] < a.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
+        elif a.pos[1]+dy >= b.pos[1]:
+            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (a.pos[1]+dy- b.pos[1] < a.height)
+        else:
+            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
+        return col
     
-    
+    def collide_with_walls(self, dx=0, dy=0):
+        for wall in self.game.walls:
+            if self.collide(self,wall,dx,dy):
+                return True
+        return False
     def moveLeftP(self):
-        self.direction = 0
-        self.pos[0] -= (15)
-        if self.pos[0] < 30:
-            self.pos[0] = 30
+        if not self.collide_with_walls(-15,0):
+            self.direction = 0
+            self.pos[0] -= (15)
+            if self.pos[0] < 30:
+                self.pos[0] = 30
+        
 
     def moveUpP(self):
-        self.pos[1]-= (15)
-        self.direction= 1
-        if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
-            self.pos[1] = 120
+        if not self.collide_with_walls(0,-15):
+            self.pos[1]-= (15)
+            self.direction= 1
+            if self.pos[1] < 30:    # No puede entrar a la cabecera del tablero
+                self.pos[1] = 30
+        
+            
 
     def moveRightP(self):
-        self.direction = 2
-        self.pos[0] += (15 ) 
-        if self.pos[0] > WIDTH - 30:
-            self.pos[0] = WIDTH - 30
+        if not self.collide_with_walls(15,0):
+            self.direction = 2
+            self.pos[0] += (15 ) 
+            if self.pos[0] > WIDTH - 30:
+                self.pos[0] = WIDTH - 30
 
     def moveDownP(self):
-        self.direction = 3
-        self.pos[1]+= (15)
-        if self.pos[1] > HEIGHT - 30: 
-            self.pos[1] = HEIGHT - 30
+        if not self.collide_with_walls(0,15):
+            self.direction = 3
+            self.pos[1]+= (15)
+            if self.pos[1] > HEIGHT - 30: 
+                self.pos[1] = HEIGHT - 30
 
 
     def __str__(self):
@@ -126,10 +151,12 @@ class Player():
 class Wall():
     def __init__(self, num_W):
         
+        self.width = PlayerSize
+        self.height = PlayerSize
         self.numW = num_W
 
         if num_W == 0:
-            self.pos = [70, 495]
+            self.pos = [100, 495]
 
         else:
             self.pos = [350, 200]
@@ -145,10 +172,11 @@ class Wall():
    
 class Game():
     def __init__(self, manager):
-        self.players = manager.list( [Player(0), Player(1)] )
+        self.walls = manager.list( [Wall(0), Wall(1)] )
+        self.players = manager.list( [Player(0,self), Player(1,self)] )
         self.bullets = manager.dict({})
 
-        self.walls = manager.list( [Wall(0), Wall(1)] )
+        
 
         self.new_bullets = manager.list([])
 
@@ -291,9 +319,9 @@ class Game():
                 self.elimbull(bull)
             elif bull.pos[0] > SIZE[0] +50:
                 self.elimbull(bull)
-            elif bull.pos[1] < 0 -50:
+            elif bull.pos[1] < -50:
                 self.elimbull(bull)
-            elif bull.pos[1] > SIZE[1] +50:
+            elif bull.pos[1] > SIZE[1]+50:
                 self.elimbull(bull)
         self.lock.release()
 
