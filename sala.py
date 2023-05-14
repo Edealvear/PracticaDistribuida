@@ -37,8 +37,8 @@ class Bullet():
     def __init__(self, NumP, position, direction, id, speed = 30):
         self.owner = NumP
         self.id = id
-        #self.width = BullSize
-        #self.height = BullSize
+        self.width = BullSize
+        self.height = BullSize
         
         self.pos = position
         self.speed = speed
@@ -192,35 +192,7 @@ class Game():
 
         self.check = Value('i',0)
 
-    '''
-    def inic_walls(self):
-        for i in range(12):
-            if i == 0:
-                self.walls.append(Wall(60, 155, 63, 273))
-            elif i == 1:
-                self.walls.append(Wall(186, 155, 63, 273))
-            elif i == 2:
-                self.walls.append(Wall(315, 155, 63, 213))
-            elif i == 3:
-                self.walls.append(Wall(439, 155, 63, 213))
-            elif i == 4:
-                self.walls.append(Wall(565, 155, 63, 273))
-            elif i == 5:
-                self.walls.append(Wall(690, 155, 63, 273))
-            elif i == 6:
-                self.walls.append(Wall(60, 554, 63, 273))
-            elif i == 7:
-                self.walls.append(Wall(186, 554, 63, 273))
-            elif i == 8:
-                self.walls.append(Wall(315, 610, 63, 213))
-            elif i == 9:
-                self.walls.append(Wall(439, 610, 63, 213))
-            elif i == 10:
-                self.walls.append(Wall(565, 554, 63, 273))
-            else:
-                self.walls.append(Wall(690, 554, 63, 273))
-    '''    
-
+    
     def get_player(self, side):
         return self.players[side]
 
@@ -310,10 +282,52 @@ class Game():
 
         return info
 
+    def collide(self,a,b,dx,dy):
+        
+        col = False
+        if a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy >= b.pos[1]: 
+            col = (a.pos[0]+dx-b.pos[0] < a.width) and (a.pos[1]+dy- b.pos[1] < a.height)
+        elif a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy < b.pos[1]:
+            col = (a.pos[0]+dx-b.pos[0] < a.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
+        elif a.pos[1]+dy >= b.pos[1]:
+            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (a.pos[1]+dy- b.pos[1] < a.height)
+        else:
+            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
+        return col
+    
+    def collide_with_walls(self,object, dx=0, dy=0):
+        for wall in self.walls:
+            if self.collide(object,wall,dx,dy):
+                return True
+        return False
+
     def move_bullet(self):
         self.lock.acquire()
         for (id, bull) in self.bullets.items():
-            bull.update()
+            if bull.dir == 0:
+                if not self.collide_with_walls(bull,-bull.speed,0):
+                    bull.update()
+                else:
+                    self.elimbull(bull)
+
+            elif bull.dir == 1:
+                if not self.collide_with_walls(bull,0,-bull.speed):
+                    bull.update()
+                else:
+                    self.elimbull(bull)
+
+            elif bull.dir == 2:
+                if not self.collide_with_walls(bull,bull.speed,0):
+                    bull.update()
+                else:
+                    self.elimbull(bull)
+
+            else:
+                if not self.collide_with_walls(bull, 0,bull.speed):
+                    bull.update()
+                else:
+                    self.elimbull(bull)
+            
             self.bullets[id] = bull 
             if bull.pos[0] < -50:
                 self.elimbull(bull)
