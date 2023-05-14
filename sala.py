@@ -10,13 +10,17 @@ SIZE = (WIDTH, HEIGHT)
 
 MinMapa = 87
 
-BullSize = 16
+BullSize = 30
 
 PowerUpSize = 50
 
 PlayerSize = 50
 
 PLAYER = [0,1]
+
+NWALL= 41
+
+
 
 def collide(a,b):
     col = False
@@ -77,11 +81,11 @@ class Player():
         self.width = PlayerSize
         self.height = PlayerSize
         if num_P == 0:
-            self.pos = [30, 495]
-            self.direction = 2
+            self.pos = [195, 442]
+            self.direction = 0
         else:
-            self.pos = [350,495]
-            self.direction  = 0
+            self.pos = [635, 442]
+            self.direction  = 2
        
         self.lives = 5
           
@@ -155,11 +159,97 @@ class Wall():
         self.height = PlayerSize
         self.numW = num_W
 
+        #Creacion de muros
         if num_W == 0:
-            self.pos = [100, 495]
+            self.pos = [305, 442] # centrales
+        elif num_W == 1:
+            self.pos = [360, 442]
+        elif num_W == 2:
+            self.pos = [415, 442]
+        elif num_W == 3:
+            self.pos = [470, 442]
+        elif num_W == 4:
+            self.pos = [525, 442]
 
-        else:
-            self.pos = [350, 200]
+        elif num_W == 5:
+            self.pos = [90, 90] # Esquina superior izquierda horizontal
+        elif num_W == 6:
+            self.pos = [145, 90]
+        elif num_W == 7:
+            self.pos = [200, 90]
+        elif num_W == 8:
+            self.pos = [255, 90]
+        elif num_W == 9:
+            self.pos = [310, 90]
+
+        elif num_W == 10:
+            self.pos = [90, 794] # Esquina inferior izquierda horizontal
+        elif num_W == 11:
+            self.pos = [145, 794]
+        elif num_W == 12:
+            self.pos = [200, 794]
+        elif num_W == 13:
+            self.pos = [255, 794]
+        elif num_W == 14:
+            self.pos = [310, 794]
+            
+        elif num_W == 15:
+            self.pos = [740, 90] # Esquina superior der horizontal
+        elif num_W == 16:
+            self.pos = [685, 90]
+        elif num_W == 17:
+            self.pos = [630, 90]
+        elif num_W == 18:
+            self.pos = [575, 90]
+        elif num_W == 19:
+            self.pos = [520, 90] 
+
+        elif num_W == 20:
+            self.pos = [740, 794] # Esquina inferior der horizontal
+        elif num_W == 21:
+            self.pos = [685, 794]
+        elif num_W == 22:
+            self.pos = [630, 794]
+        elif num_W == 23:
+            self.pos = [575, 794]
+        elif num_W == 24:
+            self.pos = [520, 794]
+
+        elif num_W == 25:           # C izq
+            self.pos = [145, 210] 
+        elif num_W == 26:
+            self.pos = [200, 210]
+        elif num_W == 27:
+            self.pos = [255, 210]
+        elif num_W == 28:           
+            self.pos = [255, 267]
+        elif num_W == 29:
+            self.pos = [255, 324]
+        elif num_W == 30:
+            self.pos = [200, 324] 
+        elif num_W == 31:
+            self.pos = [145, 324]
+
+        elif num_W == 32:           # C der
+            self.pos = [685, 210]
+        elif num_W == 33:
+            self.pos = [630, 210]
+        elif num_W == 34:
+            self.pos = [575, 210]
+        elif num_W == 35:           
+            self.pos = [575, 267]
+        elif num_W == 36:
+            self.pos = [575, 324]
+        elif num_W == 37:
+            self.pos = [630, 324] 
+        elif num_W == 38:
+            self.pos = [685, 324]
+
+        elif num_W == 39:           # solo izq
+            self.pos = [200, 622]
+
+        else:                       # solo der   
+            self.pos = [630, 622]
         
 
        
@@ -172,7 +262,7 @@ class Wall():
    
 class Game():
     def __init__(self, manager):
-        self.walls = manager.list( [Wall(0), Wall(1)] )
+        self.walls = manager.list( [Wall(i) for i in range(NWALL)] )
         self.players = manager.list( [Player(0,self), Player(1,self)] )
         self.bullets = manager.dict({})
 
@@ -242,7 +332,7 @@ class Game():
             'pos_J1': self.players[0].get_pos(),
             'pos_J2': self.players[1].get_pos(),
             'dir': [self.players[0].direction, self.players[1].direction],
-            'pos_walls': [self.walls[i].get_pos() for i in range(2)],
+            'pos_walls': [self.walls[i].get_pos() for i in range(NWALL)],
             
             'score': list(self.score),
             'is_running': self.running.value == 1,

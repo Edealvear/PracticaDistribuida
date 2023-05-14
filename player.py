@@ -7,14 +7,14 @@ import sys, os
 SIZE = (830, 884)
 WHITE = (255,255,255)
 FPS = 60
-BullSize = 16
+BullSize = 30
 PowerUpSize = 50
 
 
 PlayerSize = 50
 PLAYER = [1,2]
 
-
+NWALL= 41
 
 class Bullet():
     def __init__(self, NumP, position, direction, id, speed = 50):
@@ -147,7 +147,7 @@ class Wall_display(pygame.sprite.Sprite):
 class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
-        self.walls = [Wall(i) for i in range(3)]
+        self.walls = [Wall(i) for i in range(NWALL)]
 
         self.bullets = []
         self.score = [0,0]
@@ -201,7 +201,7 @@ class Game():
         self.set_dirplayer(0, game_info["dir"][0])
         self.set_dirplayer(1, game_info["dir"][1])
 
-        for i in range(2):
+        for i in range(NWALL):
             self.set_poswalls(i, game_info["pos_walls"][i])
 
         if "bullets" in game_info.keys():
@@ -235,8 +235,8 @@ class Display():
         self.bullets = {}
         self.bullets_sprites = {}
         
-        self.walls = [game.getwall(i) for i in range(2)] 
-        self.walls_sprites = [Wall_display(self.walls[i], self.screen) for i in range(2)]
+        self.walls = [game.getwall(i) for i in range(NWALL)] 
+        self.walls_sprites = [Wall_display(self.walls[i], self.screen) for i in range(NWALL)]
 
         self.collision_group = pygame.sprite.Group()
         self.all_sprites=pygame.sprite.Group()
@@ -244,7 +244,7 @@ class Display():
             self.collision_group.add(self.tanks_sprites[i])
             self.all_sprites.add(self.tanks_sprites[i])
 
-        for i in range(2):
+        for i in range(NWALL):
             self.collision_group.add(self.walls_sprites[i])
             self.all_sprites.add(self.walls_sprites[i])
 
