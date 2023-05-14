@@ -18,21 +18,14 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 # PENDIENTE ARREGLAR:
 
 
-- Las balas se generan delante de los tanques segun su direccion
-
-
-- Las balas se eliminan al tocar los limites del tablero 
-
 - Gestionar la colision de bala-jugador para fin de partida o descuento de vida
 
 - Crear los muros en las posiciones correctas
-- Gestionar la colision de muro-jugador para no permitir el movimiento sobre ellos
+
 - Gestionar la colision de muro-bala para eliminar la bala 
 
+- Arreglar por qué las balas a veces no se muestran en las dos pantallas.
+- Arreglar por qué el sprite de la bala se genera dos veces 
 
 
-- Extras:
-  - Poner los fondos de los sprite transparentes
-  - Poner un sprite de animacion cuando las balas se eliminen, como en el tutorial
-  - Musica y efectos de sonido al disparar, morir o eliminar balas
-  
+
