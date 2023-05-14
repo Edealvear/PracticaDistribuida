@@ -25,7 +25,6 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 - Gestionar la colision de muro-bala para eliminar la bala 
 
 - Arreglar por qué las balas a veces no se muestran en las dos pantallas.
-- Arreglar por qué el sprite de la bala se genera dos veces 
 
 
 
