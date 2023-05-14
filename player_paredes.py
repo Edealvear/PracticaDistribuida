@@ -130,7 +130,7 @@ class Wall_display(pygame.sprite.Sprite):
 
         self.screen = screen
         self.wall = wall
-        self.image = pygame.image.load(r"bonus1.png")
+        self.image = pygame.image.load(r"Wall.png")
         self.screen.blit(self.image, self.wall.pos)        
         self.rect = self.image.get_rect()
         #self.screen.blit(self.image, self.wall.pos)
