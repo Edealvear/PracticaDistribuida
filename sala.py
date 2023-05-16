@@ -1,6 +1,6 @@
 import os, pygame, time, random
 from multiprocessing.connection import Listener
-from multiprocessing import Process, Manager, Value, Lock
+from multiprocessing import Process, Manager, Value, Lock, Condition
 import traceback
 import sys
 
@@ -278,9 +278,13 @@ class Game():
 
         self.running = Value('i', 1) # 1 running
         self.lock = Lock()
+        
+        self.turn = Condition(self.lock)
         self.winner = Value('i',0) 
 
         self.check = Value('i',0)
+        self.sendnbull = Value('i',0)
+        self.senddelbull = Value('i', 0)
 
     
     def get_player(self, side):
@@ -326,7 +330,9 @@ class Game():
         self.players[player] = p
         self.lock.release()
 
-    def get_info(self):
+    def get_info(self, num):
+        self.lock.acquire()
+        self.turn.wait_for(lambda: num != self.check.value)
         
         info = {
             'pos_J1': self.players[0].get_pos(),
@@ -335,7 +341,7 @@ class Game():
             'pos_walls': [self.walls[i].get_pos() for i in range(NWALL)],
             
             'score': list(self.score),
-            'is_running': self.running.value == 1,
+            'is_running': self.running.value,
             'WINNER': self.winner.value
         }
         if len(self.bullets.keys()) > 0:
@@ -343,7 +349,7 @@ class Game():
             for key in self.bullets.keys():
                 dicbull.append(self.bullets[key].getinfo())
             info['bullets'] = dicbull
-            print(info["bullets"])
+            print(info['bullets'])
 
         if len(self.new_bullets) > 0:
             newbull = []
@@ -351,25 +357,30 @@ class Game():
                 newbull.append(i)
             info['new_bullets'] = newbull
 
-            if self.check.value >= 1:
+            if self.sendnbull.value == 1:
                 for i in self.new_bullets:
                     self.new_bullets.remove(i)
-            print("newbullets:",info["new_bullets"])
+                self.sendnbull.value = 0
+            else:
+                self.sendnbull.value = 1
             
         if len(self.elim) > 0:
             elim = []
             for i in self.elim:
                 elim.append(i)
             info['delete'] = elim
-            if self.check.value >= 1:
+            print(info['delete'])
+            if self.senddelbull.value == 1:
                 for i in self.elim:
                     self.elim.remove(i)
+                self.senddelbull.value = 0
+            else:
+                self.senddelbull.value = 1
+                 
+        self.check.value = 1 - self.check.value
         
-        if self.check.value ==1:
-            self.check.value = 0
-        else:
-            self.check.value += 1
-
+        self.turn.notify()
+        self.lock.release()
         return info
 
     def collide(self,a,b,dx,dy):
@@ -406,11 +417,13 @@ class Game():
                 else:
                     self.elimbull(bull)
 
+                            
             elif bull.dir == 2:
                 if not self.collide_with_walls(bull,bull.speed,0):
                     bull.update()
                 else:
                     self.elimbull(bull)
+
 
             else:
                 if not self.collide_with_walls(bull, 0,bull.speed):
@@ -420,7 +433,8 @@ class Game():
             
             self.bullets[id] = bull 
             if bull.pos[0] < -50:
-                self.elimbull(bull)
+                self.elim.append(("bullet", bull.id))
+                del self.bullets[bull.id]
             elif bull.pos[0] > SIZE[0] +50:
                 self.elimbull(bull)
             elif bull.pos[1] < -50:
@@ -434,17 +448,23 @@ class Game():
     def elimbull(self, bull):
         self.elim.append(("bullet", bull.id))
         del self.bullets[bull.id]
+        self.bullets = self.bullets
     
 
 
     def HitPlayer(self):
         self.lock.acquire()
-        for bull in self.bullets.values:
+        for bull in self.bullets.values():
             for player in self.players:
                 if collide(bull, player):
-                    player.hit(bull)
+                    player.lives -= 1
+                    self.players[player.numP] = player
                     self.elimbull(bull)
                     self.score[player.numP] = player.lives
+                    print(player.lives)
+                if player.lives == 0:
+                    self.running.value = 0
+                    self.winner.value = 1 - player.numP 
         self.lock.release()
 
 
@@ -500,8 +520,8 @@ class Game():
 
 def player(nplayer, conn, game):
     try:
-        print(f"starting player {PLAYER[nplayer]}:{game.get_info()}")
-        conn.send( (nplayer, game.get_info()) )
+        print(f"starting player {PLAYER[nplayer]}:{game.get_info(nplayer)}")
+        conn.send( (nplayer, game.get_info(nplayer)) )
         while game.is_running():
             command = ""
             while command != "next":
@@ -534,7 +554,7 @@ def player(nplayer, conn, game):
                     game.running.value = 0
                     game.winner.value = 0
             
-            conn.send(game.get_info())
+            conn.send(game.get_info(nplayer))
     except:
         traceback.print_exc()
         conn.close()

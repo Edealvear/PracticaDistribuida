@@ -172,6 +172,8 @@ class Game():
                 for b in game_info["bullets"]:
                     if bull.id == b[0]:
                         bull.pos = b[2]
+                        print(b[2])
+                        print(type(b[2]))
         self.directions = game_info["dir"]
         self.set_score(game_info["score"])
         self.running = game_info["is_running"]

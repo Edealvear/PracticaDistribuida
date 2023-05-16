@@ -310,6 +310,7 @@ class Display():
                 if player.player.numP != bullet.bullet.owner and pygame.sprite.collide_rect(player, bullet):
                     
                     events.append("Playerhit")
+                    
         
         return events
 
@@ -360,7 +361,6 @@ class Display():
     def delete_sprites(self, game_info):
         for (elem, elem_id) in game_info["delete"]:
             if elem == "bullet":
-                print(elem_id)
                 k1 = []
                 for k, sprite in self.bullets_sprites.items():
                     if k == elem_id:
@@ -397,11 +397,12 @@ def main(ip_address):
                         game.stop()
                 conn.send("next")
                 gameinfo = conn.recv()
-                if gameinfo["is_running"] == False:
+                if gameinfo["is_running"] == 0:
                     Win = gameinfo["WINNER"] 
                     font = pygame.font.Font(None, 90)
-                    text = font.render(f"Winner player N {Win + 1}", True ,WHITE)
+                    display.all_sprites.clear(display.screen, display.background)
                     display.screen.blit(display.background, (0,0))
+                    text = font.render(f"Winner player N {Win + 1}", True ,WHITE)
                     display.screen.blit(text, (SIZE[0]-250, 10))
                     time.sleep(10)
                     game.running = False
@@ -417,6 +418,7 @@ def main(ip_address):
         traceback.print_exc()
     finally:
         pygame.quit()
+        
 
 
         
