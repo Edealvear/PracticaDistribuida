@@ -17,11 +17,11 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 
 # PENDIENTE ARREGLAR:
 
+- Arreglar la colision bala-muro para que elimine correctamente las balas (el elimbull ya funciona bien)
 
+- Añadir un You Win / You Lose
 
-
-- Gestionar la colision de muro-bala para eliminar la bala (creo que el bullet se elimina pero su sprite no, en los ficheros sala_intento, player_intento he intentado borrarlos pero por algún motivo no lo hace) 
-- Primer intento de comentarios. ¿Qué decimos de los mutex? habrá que decir algo de la programación distribuida, ahora hay una variable condición, sorry :)
+- Comentarios
 
 
 

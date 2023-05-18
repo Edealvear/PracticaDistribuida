@@ -150,6 +150,9 @@ class Game():
         self.walls = [Wall(i) for i in range(NWALL)]
 
         self.bullets = []
+        self.new_bullets = []
+        self.to_erase_bullets = [] 
+
         self.score = [0,0]
         self.running = True
     
@@ -204,17 +207,60 @@ class Game():
         for i in range(NWALL):
             self.set_poswalls(i, game_info["pos_walls"][i])
 
-        if "bullets" in game_info.keys():
-            for bull in self.bullets:
-                for b in game_info["bullets"]:
-                    if bull.id == b[0]:
-                        bull.pos = b[2]
 
+
+        if "bullets" in game_info.keys():
+            self.update_bullets(game_info)
+
+
+    def update_bullets(self, game_info):
+        self.new_bullets= [] # Reinicio la lista de nuevas en el frame anterior
+
+        is_erased_bullet = True
+        is_new_bullet = True
+
+        # Bucle para actualizar posicion de balas y detectar las que no estan
+        for old_bull in self.bullets:                   # Las que habia
+            for actual_bull in game_info["bullets"]:    # Las que hay
+                if old_bull.id == actual_bull[0]:
+                    old_bull.pos = actual_bull[2]
+                    is_erased_bullet = False  
+                        
+            if is_erased_bullet:            #Si la bala anterior no esta en la lista nueva la metemos en una lista para borrarlas juntas despues
+                self.to_erase_bullets.append(old_bull)
+                is_erased_bullet = True     # Lo reiniciamos para la siguiente vuelta
+
+
+        
+        # Bucle para crear balas nuevas
+        for actual_bull in game_info["bullets"]:     # Las que hay 
+            for old_bull in self.bullets:            # Las que habia
+                if old_bull.id == actual_bull[0]:
+                    is_new_bullet = False  
+
+            if is_new_bullet:
+                new_bull =  Bullet(actual_bull[1], actual_bull[2], actual_bull[3], actual_bull[0])
+                self.bullets.append(new_bull)
+                self.new_bullets.append(new_bull)
+
+
+        
+                    
+                    
+    '''
+    def new_sprites(self, gameinfo):
+        if 'new_bullets' in gameinfo.keys():
+            for bullet in gameinfo["new_bullets"]:
+                bull =  Bullet(bullet[1], bullet[2], bullet[3], bullet[0])
+                self.game.bullets.append(bull)
+                self.bullets[bull.id] = self.game.bullets[-1]
+                self.bullets_sprites[bullet[0]] = Draw_bullet(self.game.bullets[-1], self.screen)
+                self.all_sprites.add(self.bullets_sprites[bullet[0]])
     
         self.directions = game_info["dir"]
         self.set_score(game_info["score"])
         self.running = game_info["is_running"]
-
+    '''
 
     def is_running(self):
         return self.running
@@ -252,34 +298,7 @@ class Display():
         self.clock = pygame.time.Clock()
         pygame.init()
     
-    '''
-    def inic_walls(self):
-        for i in range(12):
-            if i == 0:
-                self.walls.append(Wall(60, 155, 63, 273, [0,0,0,0], self.screen))
-            elif i == 1:
-                self.walls.append(Wall(186, 155, 63, 273, [0,0,0,0], self.screen))
-            elif i == 2:
-                self.walls.append(Wall(315, 155, 63, 213, [0,0,0,0], self.screen))
-            elif i == 3:
-                self.walls.append(Wall(439, 155, 63, 213, [0,0,0,0], self.screen))
-            elif i == 4:
-                self.walls.append(Wall(565, 155, 63, 273, [0,0,0,0], self.screen))
-            elif i == 5:
-                self.walls.append(Wall(690, 155, 63, 273, [0,0,0,0], self.screen))
-            elif i == 6:
-                self.walls.append(Wall(60, 554, 63, 273, [0,0,0,0], self.screen))
-            elif i == 7:
-                self.walls.append(Wall(186, 554, 63, 273, [0,0,0,0], self.screen))
-            elif i == 8:
-                self.walls.append(Wall(315, 610, 63, 213, [0,0,0,0], self.screen))
-            elif i == 9:
-                self.walls.append(Wall(439, 610, 63, 213, [0,0,0,0], self.screen))
-            elif i == 10:
-                self.walls.append(Wall(565, 554, 63, 273, [0,0,0,0], self.screen))
-            else:
-                self.walls.append(Wall(690, 554, 63, 273, [0,0,0,0], self.screen))
-    '''
+
 
     def analyze_events(self, NumP):
         events = []
@@ -314,8 +333,9 @@ class Display():
         
         return events
 
-    def refresh(self, gameinfo):
-        self.new_sprites(gameinfo)
+    def refresh(self):
+        self.paint_new_bullets()
+        self.erase_old_bullets()
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
         score = self.game.get_score()
@@ -325,7 +345,18 @@ class Display():
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
     
-    
+
+    def paint_new_bullets(self):
+        for bullet in self.game.new_bullets:
+
+            self.bullets_sprites[bullet.id] = Draw_bullet(bullet, self.screen)
+            self.all_sprites.add(self.bullets_sprites[bullet.id])
+
+    def erase_old_bullets(self):
+        for bullet in self.game.to_erase_bullets:
+            self.bullets_sprites[bullet.id].kill()
+
+    '''
     def new_sprites(self, gameinfo):
         if 'new_bullets' in gameinfo.keys():
             for bullet in gameinfo["new_bullets"]:
@@ -335,29 +366,9 @@ class Display():
                 self.bullets_sprites[bullet[0]] = Draw_bullet(self.game.bullets[-1], self.screen)
                 self.all_sprites.add(self.bullets_sprites[bullet[0]])
                 #self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
-                
-    '''
-    def new_sprites(self, gameinfo):
-        if 'new_bullets' in gameinfo.keys():
-            for i in gameinfo["new_bullets"]:
-                self.bullets[i[0]] = Bullet(i[1], i[2], i[3], i[0])
-                self.bullets_sprites[i[0]] = Draw_bullet(self.bullets[i[0]], self.screen)
-                self.all_sprites.add(self.bullets_sprites[i[0]])
-                #self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
-        
-    
-    def delete_sprites(self, game_info):
-        for (elem, elem_id) in game_info["delete"]:
-            if elem == "bullet":
-                print(elem_id)
-                for k, sprite in self.bullets_sprites.items():
-                    if k == elem_id:
-                        k1 = k
-                        sprite.kill()
-                del self.bullets[k1]
-                del self.bullets_sprites[k1]
-    '''
 
+
+    
     def delete_sprites(self, game_info):
         for (elem, elem_id) in game_info["delete"]:
             if elem == "bullet":
@@ -369,7 +380,7 @@ class Display():
                 for i in k1:
                     del self.bullets[i]
                     del self.bullets_sprites[i]
-                 
+    '''           
 
     def tick(self):
         self.clock.tick(FPS)
@@ -408,11 +419,11 @@ def main(ip_address):
                     game.running = False
                 else:
                     game.update(gameinfo)
-                    display.new_sprites(gameinfo)
-                    if 'delete' in gameinfo.keys():
-                        display.delete_sprites(gameinfo)                
+                    #display.new_sprites(gameinfo)
+                    #if 'delete' in gameinfo.keys():
+                    #    display.delete_sprites(gameinfo)                
                 
-                display.refresh(gameinfo)
+                display.refresh()
                 display.tick()
     except:
         traceback.print_exc()
