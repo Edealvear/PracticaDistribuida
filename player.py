@@ -228,7 +228,7 @@ class Game():
                         
             if is_erased_bullet:            #Si la bala anterior no esta en la lista nueva la metemos en una lista para borrarlas juntas despues
                 self.to_erase_bullets.append(old_bull)
-                is_erased_bullet = True     # Lo reiniciamos para la siguiente vuelta
+            is_erased_bullet = True     # Lo reiniciamos para la siguiente vuelta
 
 
         
@@ -242,6 +242,8 @@ class Game():
                 new_bull =  Bullet(actual_bull[1], actual_bull[2], actual_bull[3], actual_bull[0])
                 self.bullets.append(new_bull)
                 self.new_bullets.append(new_bull)
+            is_new_bullet = True
+   
 
 
         
