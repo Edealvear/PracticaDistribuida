@@ -409,14 +409,21 @@ def main(ip_address):
                 conn.send("next")
                 gameinfo = conn.recv()
                 if gameinfo["is_running"] == 0:
-                    Win = gameinfo["WINNER"] 
-                    font = pygame.font.Font(None, 90)
-                    display.all_sprites.clear(display.screen, display.background)
-                    display.screen.blit(display.background, (0,0))
-                    text = font.render(f"Winner player N {Win + 1}", True ,WHITE)
-                    display.screen.blit(text, (SIZE[0]-250, 10))
-                    time.sleep(10)
-                    game.running = False
+                    if gameinfo["is_over"] == 1:
+                        Win = gameinfo["WINNER"] 
+                        font = pygame.font.Font(None, 90)
+                        display.all_sprites.clear(display.screen, display.background)
+                        display.screen.blit(display.background, (0,0))
+                        if side == Win:
+                            text = font.render("You Win", True ,WHITE)
+                        else:
+                            text = font.render("You Lose", True ,WHITE)
+
+                        
+                        display.screen.blit(text, ( SIZE[0]/2,SIZE[1]/2))
+                        pygame.display.flip()
+                        time.sleep(5)
+                        game.running = False
                 else:
                     game.update(gameinfo)
                     #display.new_sprites(gameinfo)

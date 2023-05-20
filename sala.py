@@ -279,6 +279,7 @@ class Game():
 
         self.turn = Condition(self.lock)
         self.winner = Value('i',0)
+        self.is_over = Value('i',0)
 
         self.check = Value('i',0)
         self.sendnbull = Value('i',0)
@@ -299,6 +300,8 @@ class Game():
 
     def stop(self):
         self.running.value = 0
+    
+        
 
     def moveUp(self, player):
         self.lock.acquire()
@@ -337,6 +340,7 @@ class Game():
             'pos_J2': self.players[1].get_pos(),
             'dir': [self.players[0].direction, self.players[1].direction],
             'pos_walls': [self.walls[i].get_pos() for i in range(NWALL)],
+            'is_over' : self.is_over.value,
 
             'score': list(self.score),
             'is_running': self.running.value,
@@ -437,8 +441,8 @@ class Game():
                     self.score[player.numP] = player.lives
                     print(player.lives)
                 if player.lives == 0:
-                    self.running.value = 0
-                    self.winner.value = 1 - player.numP
+                    self.is_over.value = 1
+                    self.winner.value =  player.numP
         self.lock.release()
 
     '''
@@ -496,6 +500,11 @@ def player(nplayer, conn, game):
         print(f"starting player {PLAYER[nplayer]}:{game.get_info(nplayer)}")
         conn.send( (nplayer, game.get_info(nplayer)) )
         while game.is_running():
+            if game.is_over == 1:
+                
+                time.sleep(20)
+                game.is_running.value = 0
+
             command = ""
             while command != "next":
                 command = conn.recv()
