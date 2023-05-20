@@ -206,6 +206,7 @@ class Game():
 
         self.set_dirplayer(0, game_info["dir"][0])
         self.set_dirplayer(1, game_info["dir"][1])
+        self.score = game_info["score"]
 
         for i in range(NWALL):
             self.set_poswalls(i, game_info["pos_walls"][i])
@@ -421,7 +422,7 @@ def main(ip_address):
                         font = pygame.font.Font(None, 90)
                         display.all_sprites.clear(display.screen, display.background)
                         display.screen.blit(display.background, (0,0))
-                        if side == Win:
+                        if side == Win +1:
                             text = font.render("You Win", True ,WHITE)
                         else:
                             text = font.render("You Lose", True ,WHITE)
