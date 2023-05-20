@@ -4,7 +4,7 @@ Clon de una pantalla sencilla del juego Battle City, realizado en Python con pro
 
 Integrantes del equipo:
 - Enrique Ernesto de Alvear
-- Lucía Roldán
+- Lucía Roldán Rodríguez
 - Laura Cano Gómez
 
 ## Archivos e inicialización del juego 
@@ -18,9 +18,6 @@ jugador tiene 5 vidas y cuando alguno llega a 0 se acaba la partida.
 # PENDIENTE ARREGLAR:
 
 - Arreglar la colision bala-muro para que elimine correctamente las balas (el elimbull ya funciona bien)
-
-- Añadir un You Win / You Lose
-
 - Comentarios
 
 
