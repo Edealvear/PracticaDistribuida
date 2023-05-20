@@ -12,13 +12,11 @@ MinMapa = 87
 
 BullSize = 30
 
-PowerUpSize = 50
-
 PlayerSize = 50
 
 PLAYER = [0,1]
 
-NWALL= 41
+NWALL= 31  # Numero de muros en el tablero
 
 
 
@@ -131,8 +129,8 @@ class Player():
         if not self.collide_with_walls(0,-15):
             self.pos[1]-= (15)
             self.direction= 1
-            if self.pos[1] < 30:    # No puede entrar a la cabecera del tablero
-                self.pos[1] = 30
+            if self.pos[1] < 120:    # No puede entrar a la cabecera del tablero
+                self.pos[1] = 120
 
 
 
@@ -177,80 +175,59 @@ class Wall():
             self.pos = [525, 442]
 
         elif num_W == 5:
-            self.pos = [90, 90] # Esquina superior izquierda horizontal
+            self.pos = [90, 794] # Esquina inferior izquierda horizontal
         elif num_W == 6:
-            self.pos = [145, 90]
+            self.pos = [145, 794]
         elif num_W == 7:
-            self.pos = [200, 90]
+            self.pos = [200, 794]
         elif num_W == 8:
-            self.pos = [255, 90]
+            self.pos = [255, 794]
         elif num_W == 9:
-            self.pos = [310, 90]
+            self.pos = [310, 794]
+        
 
         elif num_W == 10:
-            self.pos = [90, 794] # Esquina inferior izquierda horizontal
-        elif num_W == 11:
-            self.pos = [145, 794]
-        elif num_W == 12:
-            self.pos = [200, 794]
-        elif num_W == 13:
-            self.pos = [255, 794]
-        elif num_W == 14:
-            self.pos = [310, 794]
-
-        elif num_W == 15:
-            self.pos = [740, 90] # Esquina superior der horizontal
-        elif num_W == 16:
-            self.pos = [685, 90]
-        elif num_W == 17:
-            self.pos = [630, 90]
-        elif num_W == 18:
-            self.pos = [575, 90]
-        elif num_W == 19:
-            self.pos = [520, 90]
-
-        elif num_W == 20:
             self.pos = [740, 794] # Esquina inferior der horizontal
-        elif num_W == 21:
+        elif num_W == 11:
             self.pos = [685, 794]
-        elif num_W == 22:
+        elif num_W == 12:
             self.pos = [630, 794]
-        elif num_W == 23:
+        elif num_W == 13:
             self.pos = [575, 794]
-        elif num_W == 24:
+        elif num_W == 14:
             self.pos = [520, 794]
 
-        elif num_W == 25:           # C izq
+        elif num_W == 15:           # C izq
             self.pos = [145, 210]
-        elif num_W == 26:
+        elif num_W == 16:
             self.pos = [200, 210]
-        elif num_W == 27:
+        elif num_W == 17:
             self.pos = [255, 210]
-        elif num_W == 28:
+        elif num_W == 18:
             self.pos = [255, 267]
-        elif num_W == 29:
+        elif num_W == 19:
             self.pos = [255, 324]
-        elif num_W == 30:
+        elif num_W == 20:
             self.pos = [200, 324]
-        elif num_W == 31:
+        elif num_W == 21:
             self.pos = [145, 324]
 
-        elif num_W == 32:           # C der
+        elif num_W == 22:           # C der
             self.pos = [685, 210]
-        elif num_W == 33:
+        elif num_W == 23:
             self.pos = [630, 210]
-        elif num_W == 34:
+        elif num_W == 24:
             self.pos = [575, 210]
-        elif num_W == 35:
+        elif num_W == 25:
             self.pos = [575, 267]
-        elif num_W == 36:
+        elif num_W == 26:
             self.pos = [575, 324]
-        elif num_W == 37:
+        elif num_W == 27:
             self.pos = [630, 324]
-        elif num_W == 38:
+        elif num_W == 28:
             self.pos = [685, 324]
 
-        elif num_W == 39:           # solo izq
+        elif num_W == 29:           # solo izq
             self.pos = [200, 622]
 
         else:                       # solo der
@@ -410,7 +387,7 @@ class Game():
             elif bull.pos[0] > SIZE[0] +50: 
                 self.elimbull(bull)
 
-            elif bull.pos[1] < -50:
+            elif bull.pos[1] < 90:
                 self.elimbull(bull)
 
             elif bull.pos[1] > SIZE[1] +50:
@@ -434,15 +411,18 @@ class Game():
         self.lock.acquire()
         for bull in self.bullets.values():
             for player in self.players:
+
                 if collide(bull, player):
                     player.lives -= 1
                     self.players[player.numP] = player
                     self.elimbull(bull)
                     self.score[player.numP] = player.lives
                     print(player.lives)
+
                 if player.lives == 0:
                     self.is_over.value = 1
                     self.winner.value =  player.numP
+                    
         self.lock.release()
 
     '''
@@ -527,11 +507,14 @@ def player(nplayer, conn, game):
 
                 elif command == "quit":
                     game.stop()
+
             if nplayer == 1:
                 game.move_bullet()
+
                 if game.score[0] == 0:
                     game.running.value = 0
                     game.winner.value = 1
+
                 elif game.score[1] == 0:
                     game.running.value = 0
                     game.winner.value = 0

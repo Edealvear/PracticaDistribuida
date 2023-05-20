@@ -7,14 +7,16 @@ import sys, os
 SIZE = (830, 884)
 WHITE = (255,255,255)
 FPS = 60
-BullSize = 30
-PowerUpSize = 50
 
+
+BullSize = 30
 
 PlayerSize = 50
+
 PLAYER = [1,2]
 
-NWALL= 41
+NWALL= 31   # Numero de muros en el tablero
+
 
 class Bullet():
     def __init__(self, NumP, position, direction, id, speed = 50):
@@ -153,7 +155,8 @@ class Game():
         self.new_bullets = []
         self.to_erase_bullets = [] 
 
-        self.score = [0,0]
+        self.score = [5,5]  # CREO QUE ESTE SCORE NO DEBERIA ESTAR AQUI, TIENE QUE COGER LA INFO DIRECTAMENTE DE LA SALA
+    
         self.running = True
     
     def getplayer(self, numP):
@@ -226,8 +229,9 @@ class Game():
                     old_bull.pos = actual_bull[2]
                     is_erased_bullet = False  
                         
-            if is_erased_bullet:            #Si la bala anterior no esta en la lista nueva la metemos en una lista para borrarlas juntas despues
+            if is_erased_bullet:        #Si la bala anterior no esta en la lista nueva la metemos en una lista para borrarlas juntas despues
                 self.to_erase_bullets.append(old_bull)
+
             is_erased_bullet = True     # Lo reiniciamos para la siguiente vuelta
 
 
@@ -242,7 +246,8 @@ class Game():
                 new_bull =  Bullet(actual_bull[1], actual_bull[2], actual_bull[3], actual_bull[0])
                 self.bullets.append(new_bull)
                 self.new_bullets.append(new_bull)
-            is_new_bullet = True
+
+            is_new_bullet = True        # Lo reiniciamos para la siguiente vuelta
    
 
 
@@ -341,9 +346,9 @@ class Display():
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
         score = self.game.get_score()
-        #font = pygame.font.Font(None, 60)
-        #text = font.render(f"lives P1 {score[0]} || lives P2 {score[1]}", True ,WHITE)
-        #self.screen.blit(text, (15,15))
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"       Lives P1: {score[0]}        ||        Lives P2: {score[1]}", True ,WHITE)
+        self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
     
