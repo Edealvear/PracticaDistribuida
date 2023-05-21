@@ -154,7 +154,7 @@ class Player():#clase del objeto controlado por el jugador, el tanque
     def __str__(self):
         return f"Tank"
 
-    def hit(self, bullet):#Que le baje la vida cuando una bala colisione 
+    def hit(self, bullet):#Pérdida de vida cuando una bala colisione 
         self.lives -= 1
 
 class Wall():#Clase de las paredes
@@ -252,15 +252,13 @@ class Game():#Clase del juego
 
 
         self.score = manager.list( [5,5] )
+        self.id = Value('i',0) #Entero que representa el numero id de cada bala
 
         self.running = Value('i', 1) # 1 running
         self.lock = Lock()#Lock a modo de mutex para evitar errores en la concurrencia
 
         self.winner = Value('i',0)#Para guardar el ganador, inicializado a 0 por poner algo
         self.is_over = Value('i',0) #1 si se ha terminado de forma correcta la partida
-
-
-
 
     def get_player(self, side):
         return self.players[side]
@@ -276,8 +274,6 @@ class Game():#Clase del juego
 
     def stop(self):
         self.running.value = 0
-    
-        
 
     def moveUp(self, player):#Mover arriba el jugador
         self.lock.acquire()
@@ -327,7 +323,8 @@ class Game():#Clase del juego
         return info
 
 
-    def collide(self,a,b,dx,dy):#para ver si el objeto a colisionara con el b al moverse dx en la primera coordenada y dy en la segunda
+    def collide(self,a,b,dx,dy):# para ver si el objeto a colisionara con el b al moverse dx en la primera 
+                                # coordenada y dy en la segunda
 
         col = False
         if a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy >= b.pos[1]:
@@ -403,7 +400,7 @@ class Game():#Clase del juego
         del self.bullets[bull.id]
 
 
-    def HitPlayer(self):#Funcion para ver que bala ha colisionado con que jugador para bajarle la vida y eliminar la bala
+    def HitPlayer(self):#Funcion para ver que bala ha colisionado con que jugador para restarle la vida y eliminar la bala
         self.lock.acquire()
         for bull in self.bullets.values():
             for player in self.players:
@@ -428,7 +425,8 @@ class Game():#Clase del juego
         pos = self.players[numP].pos
         dir = self.players[numP].direction
 
-        id = str(random.randint(0,1000))
+        id = self.id.value 
+        self.id.value = id +1
 
         # Creacion de las balas delante del tanque segun la direccion que tenga
         if dir == 0:
@@ -465,7 +463,7 @@ def player(nplayer, conn, game):#Funcion que sera el proceso de cada uno de los 
         while game.is_running():
             if game.is_over == 1:
                 
-                time.sleep(20)
+                time.sleep(20) #Tiempo mediante el cual saldra por pantalla el resultado de la partida
                 game.is_running.value = 0
 
             command = ""

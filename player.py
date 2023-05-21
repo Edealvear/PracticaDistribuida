@@ -4,7 +4,7 @@ import traceback
 import pygame
 import sys, os
 
-SIZE = (830, 884)
+SIZE = (830, 884) #Tamaño del tablero
 WHITE = (255,255,255)
 FPS = 60
 
@@ -94,7 +94,7 @@ class Player_display(pygame.sprite.Sprite):#Clase para dibujar el sprite del jug
         dir = self.player.get_dir()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
-        #si cambia la direccion a la que apunta el jugador cambiamos la imagen para que este a corde con la direccion 
+        #si cambia la direccion a la que apunta el jugador cambiamos la imagen para que este acorde con la direccion 
         if dir == 0:
             
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
