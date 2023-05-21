@@ -3,7 +3,7 @@
 Clon de una pantalla sencilla del juego Battle City, realizado en Python con programación paralela, apoyándonos en la librería pygame.
 
 Integrantes del equipo:
-- Enrique Ernesto de Alvear
+- Enrique Ernesto de Alvear Doñate
 - Lucía Roldán Rodríguez
 - Laura Cano Gómez
 
