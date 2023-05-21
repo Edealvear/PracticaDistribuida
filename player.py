@@ -335,7 +335,7 @@ def main(ip_address):#crea la conexion con la sala y va mandando y recibiendo in
     try:
         with Client((ip_address, 6000), authkey = b"password") as conn:
             game = Game()
-            side,gameinfo = conn.recv()
+            side,gameinfo = conn.recv() 
             print(f"I am player {PLAYER[side]}")
             game.update(gameinfo)
             display = Display(game)

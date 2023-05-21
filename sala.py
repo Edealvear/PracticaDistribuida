@@ -256,6 +256,19 @@ class Game():#Clase del juego
 
         self.running = Value('i', 1) # 1 running
         self.lock = Lock()#Lock a modo de mutex para evitar errores en la concurrencia
+        
+        # Utilizaremos el mutex para restringir el paso a las funciones que supongan un cambio directo
+        # en el juego. Todas aquellas relacionadas con el movimiento, disparo, alcance de un jugador,
+        # así como la función que regula la información que se va a mandar a los jugadores. 
+
+        # Su objetivo es evitar errores como que se modifique información del juego a la vez que se está 
+        # mandando otra o que se esté comprobando si una bala colisiona con un jugador y este cambie en medio
+        # de la comprobación de posición...
+
+        # Cabe destacar que en funciones auxiliares que son llamadas por alguna de las funciones que sí cuentan
+        # con la regulación del semáforo, no se regulan a su vez por semáforos pues esto podría causar que el semáforo 
+        # nunca llegara a liberarse.
+        
 
         self.winner = Value('i',0)#Para guardar el ganador, inicializado a 0 por poner algo
         self.is_over = Value('i',0) #1 si se ha terminado de forma correcta la partida
