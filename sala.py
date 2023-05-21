@@ -19,19 +19,6 @@ PLAYER = [0,1]
 NWALL= 31  # Numero de muros en el tablero
 
 
-
-def collide(a,b):
-    col = False
-    if a.pos[0] >= b.pos[0] and a.pos[1] >= b.pos[1]:
-        col = (a.pos[0]-b.pos[0] < a.width) and (a.pos[1]- b.pos[1] < a.height)
-    elif a.pos[0] >= b.pos[0] and a.pos[1] < b.pos[1]:
-        col = (a.pos[0]-b.pos[0] < a.width) and (b.pos[1]- a.pos[1] < b.height)
-    elif a.pos[1] >= b.pos[1]:
-        col = (b.pos[0]-a.pos[0] < b.width) and (a.pos[1]- b.pos[1] < a.height)
-    else:
-        col = (b.pos[0]-a.pos[0] < b.width) and (b.pos[1]- a.pos[1] < b.height)
-    return col
-
 def collide_player(a,b): #a = Bullet(), b = Player() 
     col = False
     if a.owner != b.numP:
@@ -52,11 +39,11 @@ class Bullet():
         self.id = id
         self.width = BullSize
         self.height = BullSize
-
         self.pos = position
         self.speed = speed
         self.dir = direction # 0: izq ; 1: arriba; 2: der ; 3: abajo
         self.active = True
+
 
     def update(self):
         if self.dir == 0:
@@ -70,9 +57,6 @@ class Bullet():
 
         else:
             self.pos[1] += self.speed
-
-
-
 
     def getinfo(self):
         return [self.id, self.owner, self.pos, self.dir]
