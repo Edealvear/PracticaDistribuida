@@ -32,7 +32,18 @@ def collide(a,b):
         col = (b.pos[0]-a.pos[0] < b.width) and (b.pos[1]- a.pos[1] < b.height)
     return col
 
-
+def collide_player(a,b): #a = Bullet(), b = Player() 
+    col = False
+    if a.owner != b.numP:
+        if a.pos[0] >= b.pos[0] and a.pos[1] >= b.pos[1]:
+            col = (a.pos[0]-b.pos[0] < a.width) and (a.pos[1]- b.pos[1] < a.height)
+        elif a.pos[0] >= b.pos[0] and a.pos[1] < b.pos[1]:
+            col = (a.pos[0]-b.pos[0] < a.width) and (b.pos[1]- a.pos[1] < b.height)
+        elif a.pos[1] >= b.pos[1]:
+            col = (b.pos[0]-a.pos[0] < b.width) and (a.pos[1]- b.pos[1] < a.height)
+        else:
+            col = (b.pos[0]-a.pos[0] < b.width) and (b.pos[1]- a.pos[1] < b.height)
+    return col
 
 
 class Bullet():
@@ -324,9 +335,6 @@ class Game():
             'WINNER': self.winner.value,
             'bullets': [self.bullets[key].getinfo() for key in self.bullets.keys()]
         }
-        print("Lista actual: ", info['bullets'])
-
-
         self.lock.release()
         return info
 
@@ -357,12 +365,14 @@ class Game():
             if bull.dir == 0:
                 if not self.collide_with_walls(bull,-bull.speed,0):
                     bull.update()
+                    self.bullets[id] = bull
                 else:
                     self.elimbull(bull)
 
             elif bull.dir == 1:
                 if not self.collide_with_walls(bull,0,-bull.speed):
                     bull.update()
+                    self.bullets[id] = bull
                 else:
                     self.elimbull(bull)
 
@@ -370,6 +380,7 @@ class Game():
             elif bull.dir == 2:
                 if not self.collide_with_walls(bull,bull.speed,0):
                     bull.update()
+                    self.bullets[id] = bull
                 else:
                     self.elimbull(bull)
 
@@ -377,10 +388,11 @@ class Game():
             else:
                 if not self.collide_with_walls(bull, 0,bull.speed):
                     bull.update()
+                    self.bullets[id] = bull
                 else:
                     self.elimbull(bull)
 
-            self.bullets[id] = bull
+            
             if bull.pos[0] < -50: 
                 self.elimbull(bull)
 
@@ -412,7 +424,7 @@ class Game():
         for bull in self.bullets.values():
             for player in self.players:
 
-                if collide(bull, player):
+                if collide_player(bull, player):
                     player.lives -= 1
                     self.players[player.numP] = player
                     self.elimbull(bull)

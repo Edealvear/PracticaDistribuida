@@ -214,6 +214,7 @@ class Game():
 
 
         if "bullets" in game_info.keys():
+            print(game_info['bullets'])
             self.update_bullets(game_info)
 
 
@@ -419,10 +420,11 @@ def main(ip_address):
                 if gameinfo["is_running"] == 0:
                     if gameinfo["is_over"] == 1:
                         Win = gameinfo["WINNER"] 
+                        print(Win)
                         font = pygame.font.Font(None, 90)
                         display.all_sprites.clear(display.screen, display.background)
                         display.screen.blit(display.background, (0,0))
-                        if side == Win +1:
+                        if side == Win:
                             text = font.render("You Win", True ,WHITE)
                         else:
                             text = font.render("You Lose", True ,WHITE)
