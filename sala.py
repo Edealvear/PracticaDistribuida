@@ -19,7 +19,14 @@ PLAYER = [0,1]
 NWALL= 31  # Numero de muros en el tablero
 
 
-def collide_player(a,b): #a = Bullet(), b = Player() 
+def collide_player(a,b): 
+    """
+    a: tipo Bullet()
+    b: Player()
+    
+    devuelve: True si una bala que no sea de b, colisiona con b
+              False en otro caso
+    """
     col = False
     if a.owner != b.numP:
         if a.pos[0] >= b.pos[0] and a.pos[1] >= b.pos[1]:
@@ -33,7 +40,7 @@ def collide_player(a,b): #a = Bullet(), b = Player()
     return col
 
 
-class Bullet():
+class Bullet():#Clase de las balas 
     def __init__(self, NumP, position, direction, id, speed = 30):
         self.owner = NumP
         self.id = id
@@ -45,7 +52,7 @@ class Bullet():
         self.active = True
 
 
-    def update(self):
+    def update(self):#Hace avanzar a las balas segun su direccion
         if self.dir == 0:
             self.pos[0] -= self.speed
 
@@ -66,7 +73,7 @@ class Bullet():
 
 
 
-class Player():
+class Player():#clase del objeto controlado por el jugador, el tanque
     def __init__(self, num_P,game):
 
         self.game = game
@@ -91,36 +98,36 @@ class Player():
 
 
 
-    def collide(self,a,b,dx,dy):
+    def collide(self,b,dx,dy):#para ver si el Player colisiona con el objeto b
 
         col = False
-        if a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy >= b.pos[1]:
-            col = (a.pos[0]+dx-b.pos[0] < a.width) and (a.pos[1]+dy- b.pos[1] < a.height)
-        elif a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy < b.pos[1]:
-            col = (a.pos[0]+dx-b.pos[0] < a.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
-        elif a.pos[1]+dy >= b.pos[1]:
-            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (a.pos[1]+dy- b.pos[1] < a.height)
+        if self.pos[0]+dx >= b.pos[0] and self.pos[1]+dy >= b.pos[1]:
+            col = (self.pos[0]+dx-b.pos[0] < self.width) and (self.pos[1]+dy- b.pos[1] < self.height)
+        elif self.pos[0]+dx >= b.pos[0] and self.pos[1]+dy < b.pos[1]:
+            col = (self.pos[0]+dx-b.pos[0] < self.width) and (b.pos[1]- (self.pos[1]+dy) < b.height)
+        elif self.pos[1]+dy >= b.pos[1]:
+            col = (b.pos[0]-(self.pos[0]+dx) < b.width) and (self.pos[1]+dy- b.pos[1] < self.height)
         else:
-            col = (b.pos[0]-(a.pos[0]+dx) < b.width) and (b.pos[1]- (a.pos[1]+dy) < b.height)
+            col = (b.pos[0]-(self.pos[0]+dx) < b.width) and (b.pos[1]- (self.pos[1]+dy) < b.height)
         return col
 
 
-    def collide_with_walls(self, dx=0, dy=0):
+    def collide_with_walls(self, dx=0, dy=0):#Usar la funcion collide anterior para ver si el Player chocara con alguna pared al moverse
         for wall in self.game.walls:
-            if self.collide(self,wall,dx,dy):
+            if self.collide(wall,dx,dy):
                 return True
         return False
 
 
-    def moveLeftP(self):
+    def moveLeftP(self):#metodo para mover al Player a la izq
         if not self.collide_with_walls(-15,0):
             self.direction = 0
             self.pos[0] -= (15)
-            if self.pos[0] < 30:
+            if self.pos[0] < 30:#Para que no se salga de la pantalla
                 self.pos[0] = 30
 
 
-    def moveUpP(self):
+    def moveUpP(self):#Mover arriba al Player
         if not self.collide_with_walls(0,-15):
             self.pos[1]-= (15)
             self.direction= 1
@@ -129,28 +136,28 @@ class Player():
 
 
 
-    def moveRightP(self):
+    def moveRightP(self):#mover a la derecha
         if not self.collide_with_walls(15,0):
             self.direction = 2
             self.pos[0] += (15 )
-            if self.pos[0] > WIDTH - 30:
+            if self.pos[0] > WIDTH - 30:#Para que no se salga de la pantalla
                 self.pos[0] = WIDTH - 30
 
-    def moveDownP(self):
+    def moveDownP(self):#mover hacia abajo
         if not self.collide_with_walls(0,15):
             self.direction = 3
             self.pos[1]+= (15)
-            if self.pos[1] > HEIGHT - 30:
+            if self.pos[1] > HEIGHT - 30:#Para que no se salga de la pantalla
                 self.pos[1] = HEIGHT - 30
 
 
     def __str__(self):
         return f"Tank"
 
-    def hit(self, bullet):
+    def hit(self, bullet):#Que le baje la vida cuando una bala colisione 
         self.lives -= 1
 
-class Wall():
+class Wall():#Clase de las paredes
     def __init__(self, num_W):
 
         self.width = PlayerSize
@@ -237,8 +244,8 @@ class Wall():
         return f"Wall"
 
 
-class Game():
-    def __init__(self, manager):
+class Game():#Clase del juego 
+    def __init__(self, manager):#Usaremos un manager para compartir entre los procesos de los jugadores la informacion del juego
         self.walls = manager.list( [Wall(i) for i in range(NWALL)] )
         self.players = manager.list( [Player(0,self), Player(1,self)] )
         self.bullets = manager.dict({})
@@ -247,15 +254,12 @@ class Game():
         self.score = manager.list( [5,5] )
 
         self.running = Value('i', 1) # 1 running
-        self.lock = Lock()
+        self.lock = Lock()#Lock a modo de mutex para evitar errores en la concurrencia
 
-        self.turn = Condition(self.lock)
-        self.winner = Value('i',0)
-        self.is_over = Value('i',0)
+        self.winner = Value('i',0)#Para guardar el ganador, inicializado a 0 por poner algo
+        self.is_over = Value('i',0) #1 si se ha terminado de forma correcta la partida
 
-        self.check = Value('i',0)
-        self.sendnbull = Value('i',0)
-        self.senddelbull = Value('i', 0)
+
 
 
     def get_player(self, side):
@@ -275,37 +279,36 @@ class Game():
     
         
 
-    def moveUp(self, player):
+    def moveUp(self, player):#Mover arriba el jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveUpP()
         self.players[player] = p
         self.lock.release()
 
-    def moveDown(self, player):
+    def moveDown(self, player):#Mover abajo el jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveDownP()
         self.players[player] = p
         self.lock.release()
 
-    def moveRight(self, player):
+    def moveRight(self, player):#Mover a la derecha el jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveRightP()
         self.players[player] = p
         self.lock.release()
 
-    def moveLeft(self, player):
+    def moveLeft(self, player):#Mover izquierda el jugador
         self.lock.acquire()
         p = self.players[player]
         p.moveLeftP()
         self.players[player] = p
         self.lock.release()
 
-    def get_info(self, num):
+    def get_info(self, num):#funcion para recoger en un diccionario la informacion de la partida
         self.lock.acquire()
-        #self.turn.wait_for(lambda: num != self.check.value)
 
         info = {
             'pos_J1': self.players[0].get_pos(),
@@ -319,10 +322,12 @@ class Game():
             'WINNER': self.winner.value,
             'bullets': [self.bullets[key].getinfo() for key in self.bullets.keys()]
         }
+        
         self.lock.release()
         return info
 
-    def collide(self,a,b,dx,dy):
+
+    def collide(self,a,b,dx,dy):#para ver si el objeto a colisionara con el b al moverse dx en la primera coordenada y dy en la segunda
 
         col = False
         if a.pos[0]+dx >= b.pos[0] and a.pos[1]+dy >= b.pos[1]:
@@ -336,47 +341,48 @@ class Game():
         return col
 
 
-    def collide_with_walls(self,object, dx=0, dy=0):
+
+    def collide_with_walls(self,obj, dx=0, dy=0):#Para ver si obj va a colisionar con alguna de las paredes
         for wall in self.walls:
-            if self.collide(object,wall,dx,dy):
+            if self.collide(obj,wall,dx,dy):
                 return True
         return False
 
 
-    def move_bullet(self):
+    def move_bullet(self):#Metodo para mover las balas
         self.lock.acquire()
         for (id, bull) in self.bullets.items():
             if bull.dir == 0:
-                if not self.collide_with_walls(bull,-bull.speed,0):
+                if not self.collide_with_walls(bull,-bull.speed,0):#Si no colisionan con una pared que se mueva en la direccion  0 
                     bull.update()
                     self.bullets[id] = bull
-                else:
+                else:#Si colisionan con una pared que se elimine
                     self.elimbull(bull)
 
             elif bull.dir == 1:
-                if not self.collide_with_walls(bull,0,-bull.speed):
+                if not self.collide_with_walls(bull,0,-bull.speed):#Si no colisionan con una pared que se mueva en la direccion  1 
                     bull.update()
                     self.bullets[id] = bull
-                else:
+                else:#Si colisionan con una pared que se elimine
                     self.elimbull(bull)
 
 
             elif bull.dir == 2:
-                if not self.collide_with_walls(bull,bull.speed,0):
+                if not self.collide_with_walls(bull,bull.speed,0):#Si no colisionan con una pared que se mueva en la direccion  2 
                     bull.update()
                     self.bullets[id] = bull
-                else:
+                else:#Si colisionan con una pared que se elimine
                     self.elimbull(bull)
 
 
             else:
-                if not self.collide_with_walls(bull, 0,bull.speed):
+                if not self.collide_with_walls(bull, 0,bull.speed):#Si no colisionan con una pared que se mueva en la direccion  3 
                     bull.update()
                     self.bullets[id] = bull
-                else:
+                else:#Si colisionan con una pared que se elimine
                     self.elimbull(bull)
 
-            
+            #Si se sale de la pantalla que se elimine 
             if bull.pos[0] < -50: 
                 self.elimbull(bull)
 
@@ -393,17 +399,11 @@ class Game():
 
 
 
-    def elimbull(self, bull):
-
-        print("Antes de borrar: ", self.bullets)
-
+    def elimbull(self, bull):#Metodo para eliminar la bala del juego 
         del self.bullets[bull.id]
 
-        print("Despues de borrar:", self.bullets)
 
-
-
-    def HitPlayer(self):
+    def HitPlayer(self):#Funcion para ver que bala ha colisionado con que jugador para bajarle la vida y eliminar la bala
         self.lock.acquire()
         for bull in self.bullets.values():
             for player in self.players:
@@ -415,27 +415,14 @@ class Game():
                     self.score[player.numP] = player.lives
                     print(player.lives)
 
-                if player.lives == 0:
-                    self.is_over.value = 1
-                    self.winner.value =  player.numP
+                if player.lives == 0:#Si no le quedan vidas al jugador se termina la partida 
+                    self.is_over.value = 1 #Para ver que se ha terminado de forma correcta
+                    self.winner.value =  1 - player.numP   #Para ver cual es el ganador
                     
         self.lock.release()
 
-    '''
-    def collide_BW(self, id):
-        self.lock.acquire()
-        for idn, bull in self.bullets.items():
-            if idn == id:
 
-        #     for wall in self.walls:
-        #         if collide(bull, wall):
-        #             self.elimbull(bull)
-                #print(self.bullets, flush = True )
-                self.elimbull(bull)
-        self.lock.release()
-    '''
-
-    def shoot(self, numP):
+    def shoot(self, numP):#metodo que crea una nueva bala cuando el jugador dispara
         self.lock.acquire()
         owner = numP
         pos = self.players[numP].pos
@@ -471,7 +458,7 @@ class Game():
 
 
 
-def player(nplayer, conn, game):
+def player(nplayer, conn, game):#Funcion que sera el proceso de cada uno de los jugadores
     try:
         print(f"starting player {PLAYER[nplayer]}:{game.get_info(nplayer)}")
         conn.send( (nplayer, game.get_info(nplayer)) )
@@ -482,9 +469,8 @@ def player(nplayer, conn, game):
                 game.is_running.value = 0
 
             command = ""
-            while command != "next":
+            while command != "next": #Recibe los input que mandan los jugadores y segun cual le dice al juego que haga una cosa u otra
                 command = conn.recv()
-                #print(command)
                 if command == "Up":
                     game.moveUp(nplayer)
                 elif command == "Down":
@@ -495,9 +481,6 @@ def player(nplayer, conn, game):
                     game.moveRight(nplayer)
                 elif command == "Space":
                     game.shoot(nplayer)
-                #elif command == "ColBW":
-                #    id = conn.recv()
-                #    game.collide_BW(id)
                 elif command == "Playerhit":
                     game.HitPlayer()
 
@@ -505,7 +488,7 @@ def player(nplayer, conn, game):
                     game.stop()
 
             if nplayer == 1:
-                game.move_bullet()
+                game.move_bullet()#Movemos las balas
 
                 if game.score[0] == 0:
                     game.running.value = 0
@@ -524,21 +507,20 @@ def player(nplayer, conn, game):
         print(f"Game ended {game}")
 
 
-def main(ip_address):
+def main(ip_address): #Inicializa el juego con las conexiones de los jugadores
     manager = Manager()
     try:
         with Listener((ip_address, 6000), authkey = b"password") as listener:
             n_player = 0
             players = [None, None]
             game = Game(manager)
-            #game.inic_walls()
             while True:
                 print(f"accepting connection {n_player}")
                 conn = listener.accept()
                 players[n_player] = Process(target=player,
-                                            args=(n_player, conn, game))
+                                            args=(n_player, conn, game))#Nos creamos el proceso de los jugadores
                 n_player += 1
-                if n_player == 2:
+                if n_player == 2:#Si ya hay 2 jugadores empezamos el juego
 
                     players[0].start()
                     players[1].start()
@@ -546,7 +528,7 @@ def main(ip_address):
                     n_player = 0
                     players = [None, None]
                     game = Game(manager)
-                    #game.inic_walls()
+
 
 
     except Exception as e:

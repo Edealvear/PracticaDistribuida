@@ -18,7 +18,7 @@ PLAYER = [1,2]
 NWALL= 31   # Numero de muros en el tablero
 
 
-class Bullet():
+class Bullet():#Clase de las balas
     def __init__(self, NumP, position, direction, id, speed = 50):
         self.id = id
         self.owner = NumP
@@ -35,25 +35,24 @@ class Bullet():
         
 
 
-class Draw_bullet(pygame.sprite.Sprite):
+class Draw_bullet(pygame.sprite.Sprite):#Clase para dibujar las balas
     def __init__(self, bullet, screen):
         super().__init__()
         self.screen = screen
         self.bullet = bullet
-        self.image = pygame.image.load(r"bullet.png")
-        self.screen.blit(self.image, self.bullet.pos)
+        self.image = pygame.image.load(r"bullet.png")#Cargamos la imagen
+        self.screen.blit(self.image, self.bullet.pos)#La dibujamos
         self.rect = self.image.get_rect()
         self.update()
-        #self.rect.blit(self.image_load, (0,0))
-        #self.screen.blit(self.rect, self.rect_pos)
 
-    def update(self) -> None:
+
+    def update(self) -> None: #Para actualizar la posicion del sprite 
         pos = self.bullet.get_pos()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
 
 
-class Player():
+class Player():#Clase del jugador
     def __init__(self, num_P, pos =[None, None]):
         self.numP = num_P
         self.pos = pos
@@ -79,24 +78,23 @@ class Player():
         return f"Tank {self.numP}"
     
 
-class Player_display(pygame.sprite.Sprite):
+class Player_display(pygame.sprite.Sprite):#Clase para dibujar el sprite del jugador
     def __init__(self, player, screen):
         super().__init__()
         self.dir = 0
         self.screen = screen
         self.player = player 
-        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
+        self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")#Cargamos la imagen
         self.rect = self.image.get_rect()
         self.screen.blit(self.image, self.player.pos)
         self.update()
-        #self.screen.blip(self.image, self.pos)
     
-    def update(self):
+    def update(self):#Para actualizar la posicion del sprite 
         pos = self.player.get_pos()
         dir = self.player.get_dir()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)
-
+        #si cambia la direccion a la que apunta el jugador cambiamos la imagen para que este a corde con la direccion 
         if dir == 0:
             
             self.image = pygame.image.load(rf"TanqueP{self.player.numP + 1}_left.png")
@@ -112,7 +110,7 @@ class Player_display(pygame.sprite.Sprite):
 
 
 
-class Wall():
+class Wall():#Clase de las paredes
     def __init__(self, num_W, pos = [None, None]):
         self.numW = num_W
         self.pos = pos
@@ -126,19 +124,18 @@ class Wall():
     def __str__(self):
         return f"Wall {self.numW}"
 
-class Wall_display(pygame.sprite.Sprite):
+class Wall_display(pygame.sprite.Sprite):#Clase para dibujar las paredes
     def __init__(self, wall, screen):
         super().__init__()
 
         self.screen = screen
         self.wall = wall
-        self.image = pygame.image.load(r"Wall.png")
+        self.image = pygame.image.load(r"Wall.png")#Cargamos la imagen
         self.screen.blit(self.image, self.wall.pos)        
         self.rect = self.image.get_rect()
-        #self.screen.blit(self.image, self.wall.pos)
         self.update()
 
-    def update(self):
+    def update(self):#Para que se recarguen las paredes en el siguiente frame
         pos = self.wall.get_pos()
         self.rect.centerx, self.rect.centery = pos
         self.screen.blit(self.image, pos)        
@@ -146,7 +143,7 @@ class Wall_display(pygame.sprite.Sprite):
 
 
 
-class Game():
+class Game():#Clase del juego 
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
         self.walls = [Wall(i) for i in range(NWALL)]
@@ -155,7 +152,7 @@ class Game():
         self.new_bullets = []
         self.to_erase_bullets = [] 
 
-        self.score = [5,5]  # CREO QUE ESTE SCORE NO DEBERIA ESTAR AQUI, TIENE QUE COGER LA INFO DIRECTAMENTE DE LA SALA
+        self.score = [5,5]
     
         self.running = True
     
@@ -175,32 +172,13 @@ class Game():
     def getwall(self, numW):
         return self.walls[numW]
 
-
-
-
-
     def get_score(self):
         return self.score
 
     def set_score(self, score):
         self.score = score
-    '''
-    def update(self, game_info):
-        self.set_posplayer(0, game_info["pos_J1"])
-        self.set_posplayer(1, game_info["pos_J2"])
-        if 'bullets' in game_info.keys():
-            for bull in self.bullets:
-
-                for b in game_info["bullets"]:
-                    if bull.id == b[0]:
-                        bull.pos = b[2]
-                print(f'POSIBALA: {bull.pos}')
-        self.directions = game_info["dir"]
-        self.set_score(game_info["score"])
-        self.running = game_info["is_running"]
-    '''
     
-    def update(self, game_info):
+    def update(self, game_info):#metodo que actualiza la informacion del juego segun lo que le llega de la sala
         self.set_posplayer(0, game_info["pos_J1"])
         self.set_posplayer(1, game_info["pos_J2"])
 
@@ -208,17 +186,14 @@ class Game():
         self.set_dirplayer(1, game_info["dir"][1])
         self.score = game_info["score"]
 
-        for i in range(NWALL):
+        for i in range(NWALL):#util para inicializar las paredes 
             self.set_poswalls(i, game_info["pos_walls"][i])
 
+        #para actualizar las balas 
+        self.update_bullets(game_info)
 
 
-        if "bullets" in game_info.keys():
-            print(game_info['bullets'])
-            self.update_bullets(game_info)
-
-
-    def update_bullets(self, game_info):
+    def update_bullets(self, game_info): #Para actualizar las balas 
         self.new_bullets= [] # Reinicio la lista de nuevas en el frame anterior
 
         is_erased_bullet = True
@@ -236,8 +211,6 @@ class Game():
 
             is_erased_bullet = True     # Lo reiniciamos para la siguiente vuelta
 
-
-        
         # Bucle para crear balas nuevas
         for actual_bull in game_info["bullets"]:     # Las que hay 
             for old_bull in self.bullets:            # Las que habia
@@ -251,26 +224,6 @@ class Game():
 
             is_new_bullet = True        # Lo reiniciamos para la siguiente vuelta
    
-
-
-        
-                    
-                    
-    '''
-    def new_sprites(self, gameinfo):
-        if 'new_bullets' in gameinfo.keys():
-            for bullet in gameinfo["new_bullets"]:
-                bull =  Bullet(bullet[1], bullet[2], bullet[3], bullet[0])
-                self.game.bullets.append(bull)
-                self.bullets[bull.id] = self.game.bullets[-1]
-                self.bullets_sprites[bullet[0]] = Draw_bullet(self.game.bullets[-1], self.screen)
-                self.all_sprites.add(self.bullets_sprites[bullet[0]])
-    
-        self.directions = game_info["dir"]
-        self.set_score(game_info["score"])
-        self.running = game_info["is_running"]
-    '''
-
     def is_running(self):
         return self.running
     
@@ -279,8 +232,8 @@ class Game():
 
 
     
-class Display():
-    def __init__(self, game):
+class Display():#Clase que controla el display del juego 
+    def __init__(self, game):#inicializamos todo
         self.screen = pygame.display.set_mode(SIZE)
         self.game = game
 
@@ -295,6 +248,8 @@ class Display():
 
         self.collision_group = pygame.sprite.Group()
         self.all_sprites=pygame.sprite.Group()
+        
+        #metemos los tanques y las paredes en los grupos de colision y de todos los sprites
         for i in range(2):
             self.collision_group.add(self.tanks_sprites[i])
             self.all_sprites.add(self.tanks_sprites[i])
@@ -303,36 +258,36 @@ class Display():
             self.collision_group.add(self.walls_sprites[i])
             self.all_sprites.add(self.walls_sprites[i])
 
-        self.background = pygame.image.load("Mapa.png")
+        self.background = pygame.image.load("Mapa.png")#Cargamos la imagen del mapa
         self.clock = pygame.time.Clock()
         pygame.init()
     
 
 
-    def analyze_events(self, NumP):
+    def analyze_events(self, NumP):#Analiza los eventos del juego para mandarle la informacion a la sala
         events = []
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:#cerrar la partida
                     events.append("quit")
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN:#mover el tanque hacia abajo
                     self.tanks_sprites[NumP].dir = 3
                     events.append("Down")
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP:#mover el tanque arriba
                     self.tanks_sprites[NumP].dir = 1
                     events.append("Up")
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT:#mover el tanque a la izq
                     self.tanks_sprites[NumP].dir = 0
                     events.append("Left")
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT:#mover el tanque a la derecha
                     self.tanks_sprites[NumP].dir = 2
                     events.append("Right")
-                elif event.key == pygame.K_SPACE:
+                elif event.key == pygame.K_SPACE:#disparar
                     events.append("Space")
 
             elif event.type == pygame.QUIT:
                 events.append("quit")
-
+        #Para ver si algun jugador recibe un disparo
         for bullet in self.bullets_sprites.values():
             for player in self.tanks_sprites:
                 if player.player.numP != bullet.bullet.owner and pygame.sprite.collide_rect(player, bullet):
@@ -342,54 +297,30 @@ class Display():
         
         return events
 
-    def refresh(self):
-        self.paint_new_bullets()
-        self.erase_old_bullets()
+    def refresh(self):#Actualiza la pantalla
+        self.paint_new_bullets()#Si hay que crear nuevas balas las crea
+        self.erase_old_bullets()#si hay que eliminar otras las elimina
+        #Actualiza el resto de los sprites y los pinta
         self.all_sprites.update()
         self.screen.blit(self.background,(0,0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 60)
-        text = font.render(f"       Lives P1: {score[0]}        ||        Lives P2: {score[1]}", True ,WHITE)
+        text = font.render(f"       Lives P1: {score[0]}        ||        Lives P2: {score[1]}", True ,WHITE)#Pinta la cabecera con las vidas que les quedan a cada jugador
         self.screen.blit(text, (15,15))
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
     
 
-    def paint_new_bullets(self):
+    def paint_new_bullets(self):#Crea las nuevas balas
         for bullet in self.game.new_bullets:
 
             self.bullets_sprites[bullet.id] = Draw_bullet(bullet, self.screen)
             self.all_sprites.add(self.bullets_sprites[bullet.id])
 
-    def erase_old_bullets(self):
+    def erase_old_bullets(self):#Elimina las antiguas
         for bullet in self.game.to_erase_bullets:
             self.bullets_sprites[bullet.id].kill()
-
-    '''
-    def new_sprites(self, gameinfo):
-        if 'new_bullets' in gameinfo.keys():
-            for bullet in gameinfo["new_bullets"]:
-                bull =  Bullet(bullet[1], bullet[2], bullet[3], bullet[0])
-                self.game.bullets.append(bull)
-                self.bullets[bull.id] = self.game.bullets[-1]
-                self.bullets_sprites[bullet[0]] = Draw_bullet(self.game.bullets[-1], self.screen)
-                self.all_sprites.add(self.bullets_sprites[bullet[0]])
-                #self.collision_group.add(self.bullets[i[0]]) # AÑADIDO
-
-
-    
-    def delete_sprites(self, game_info):
-        for (elem, elem_id) in game_info["delete"]:
-            if elem == "bullet":
-                k1 = []
-                for k, sprite in self.bullets_sprites.items():
-                    if k == elem_id:
-                        k1.append(k)
-                        sprite.kill()
-                for i in k1:
-                    del self.bullets[i]
-                    del self.bullets_sprites[i]
-    '''           
+          
 
     def tick(self):
         self.clock.tick(FPS)
@@ -400,7 +331,7 @@ class Display():
 
 
 
-def main(ip_address):
+def main(ip_address):#crea la conexion con la sala y va mandando y recibiendo informacion
     try:
         with Client((ip_address, 6000), authkey = b"password") as conn:
             game = Game()
@@ -409,36 +340,32 @@ def main(ip_address):
             game.update(gameinfo)
             display = Display(game)
             
-            while game.is_running():
-                events = display.analyze_events(side)
+            while game.is_running():#mientras el juego esta corriendo en la sala
+                events = display.analyze_events(side)#Recopilamos toda la info mandada por el jugador y el display
                 for ev in events:
-                    conn.send(ev)
-                    if ev == 'quit':
+                    conn.send(ev)#La mandamos 
+                    if ev == 'quit':#Si es terminar la partida la terminamos
                         game.stop()
                 conn.send("next")
-                gameinfo = conn.recv()
-                if gameinfo["is_running"] == 0:
-                    if gameinfo["is_over"] == 1:
-                        Win = gameinfo["WINNER"] 
-                        print(Win)
+                gameinfo = conn.recv()#Recibimos la informacion de la sala
+                if gameinfo["is_running"] == 0:#Si la sala dice que ha terminado la partida
+                    if gameinfo["is_over"] == 1:#si dice que ha terminado de forma correcta, es decir que uno de los jugadores se ha quedado sin vidas
+                        Win = gameinfo["WINNER"] #Vemos quien es el ganador
                         font = pygame.font.Font(None, 90)
                         display.all_sprites.clear(display.screen, display.background)
                         display.screen.blit(display.background, (0,0))
+                        #muestra por la pantalla del juego si eres el ganador o el perdedor 
                         if side == Win:
                             text = font.render("You Win", True ,WHITE)
                         else:
                             text = font.render("You Lose", True ,WHITE)
-
-                        
                         display.screen.blit(text, ( SIZE[0]/2,SIZE[1]/2))
                         pygame.display.flip()
                         time.sleep(5)
                         game.running = False
+                        
                 else:
-                    game.update(gameinfo)
-                    #display.new_sprites(gameinfo)
-                    #if 'delete' in gameinfo.keys():
-                    #    display.delete_sprites(gameinfo)                
+                    game.update(gameinfo)           
                 
                 display.refresh()
                 display.tick()
